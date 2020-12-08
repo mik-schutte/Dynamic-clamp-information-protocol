@@ -1,5 +1,5 @@
-from input import Input
-from make_input_experiments import make_input_experiments
+from code.input import Input
+from code.make_input_experiments import make_input_experiments
 import numpy as np
 
 
@@ -17,6 +17,6 @@ print('Running...')
 print('Done')
 
 # Save
-np.savetxt('hiddenstate.csv', hidden_state, delimiter=',')
-np.savetxt('input_current.csv', input_current, delimiter=',')
-np.savetxt('input_theory.csv', input_theory, delimiter=',')
+np.savetxt(f'results/hiddenstate.csv', hidden_state, delimiter=',')
+np.savetxt(f'results/input_current.csv', input_current, delimiter=',')
+np.savetxt(f'results/input_theory.csv', input_theory, delimiter=',')

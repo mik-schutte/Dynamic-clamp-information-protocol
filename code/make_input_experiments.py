@@ -23,14 +23,14 @@ def make_input_experiments(qon_qoff_type, baseline, amplitude_scaling, tau, fact
     ''' Make input current based on a artificial network responding to a hidden state.
 
     INPUT:
-        qon_qoff_type (str): The method of qon/qoff generation. Options are normal, balanced and balanced_uniform.
+        qon_qoff_type (str): The method of qon/qoff generation. Options are normal,
+                             balanced and balanced_uniform.
         baseline (pA): Baseline for scaling the input current in picoampere.
-        amplitude_scaling (pA): Scaling of the stimulus (for instance the current needed to keep the
-                  membrane potential at a fixed value); note that this scales the 'arbitrary values' of the
-                  Bayesian network to for instance pA, so it is a bit arbitrary.
+        amplitude_scaling (pA): Scaling of the stimulus in picoampere
         tau (ms): Switching speed of the hidden state in milliseconds.
         mean_firing_rate (kHz): Mean firing rate of the artificial neurons in kilohertz.
-        sampling rate (kHZ): Sampling rate of the experimental setup (injected current) in kilohertz.
+        sampling rate (kHZ): Sampling rate of the experimental setup (injected current) 
+                             in kilohertz.
         duration (ms): Length of the duration in milliseconds .
         seed (optional): Seed used in the random number generator.
 

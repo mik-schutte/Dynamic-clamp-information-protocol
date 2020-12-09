@@ -151,16 +151,28 @@ class Input():
         qon[qon<0] = abs(qon[qon<0])
         return [qon, qoff]
 
+    @staticmethod
+    def create_qonqoff_balanced_uniform(N, minq, maxq, qseed=None):
+        '''docstring
+        '''
+        random.seed(qseed)
+
+        random_array = np.array([[random.random() for e in range(1)] for e in range(N)])
+        qoff = minq + np.multiply((maxq-minq), random_array)
+        random_array = np.array([[random.random() for e in range(1)] for e in range(N)])
+        qon = minq + np.multiply((maxq-minq), random_array)
+        return [qon, qoff]
+
     def markov(self): # Not a static method as in the Matlab code
         '''Takes qon, qoff, ron and roff from class object and generates
            input and x if xfix empty, generates input with xfix otherwise
         '''
-
         random.seed(self.xseed)
         ni = len(self.qon)
-        nt = self.length #Matlab code uses len(self.tvec) as in the length function
-        w = np.log(self.qon/self.qoff) #self.w #Matlab code redoes the get_w function
-
+        nt = self.length 
+    
+        w = np.log(self.qon/self.qoff) 
+        
         # Generate x
         if self.xfix == None:
             #no need to generate p0 again
@@ -168,6 +180,7 @@ class Input():
 
             #Initial value
             i = random.random()
+            print(i)
             if i < self.p0:
                 xs[0] = 1
             else:
@@ -205,7 +218,8 @@ class Input():
         random.seed(self.seed)
 
         # What does this for loop do?
-        np.set_printoptions(threshold=np.inf) 
+        np.set_printoptions(threshold=np.inf)
+        print('In for loop') 
         for k in range(ni):
             randon = np.array([[random.random() for e in range(np.shape(xon)[1])] for e in range(np.shape(xon)[0])])
             randoff = np.array([[random.random() for e in range(np.shape(xoff)[1])] for e in range(np.shape(xoff)[0])])
@@ -221,13 +235,10 @@ class Input():
             np.where(sttempon==1)
 
             stsum = stsum + w[k]*sttemp #w[k] is alright sttemp is all zeros 
-     
+        print('out for loop')
         if self.kernel != None:
             stsum = np.convolve(stsum.flatten(), kernelf, mode='full')
 
         stsum = stsum[0:nt]
         ip = stsum 
         return [ip, xs]
-
-        #TODO qonqoffbalance, qonqoffbalanceduniform
-        #TODO is matmul the currect way to do it?

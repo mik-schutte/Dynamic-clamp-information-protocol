@@ -99,11 +99,11 @@ class Input():
     def create_qonqoff(mutheta, N, alphan, regime, qseed=None):
         '''Description returns [qon, qoff] with qon and qoff being a matrix
         '''
-        random.seed(qseed)
+        np.random.seed(qseed)
         
         #TODO Check if this is best practice?
-        qoff = np.array([[random.random() for e in range(1)] for e in range(N)])
-        qon = np.array([[random.random() for e in range(1)] for e in range(N)])
+        qoff = np.random.rand(N, 1)
+        qon = np.random.rand(N, 1)
         if N > 1:
             qoff = qoff/np.std(qoff)
             qon = qon/np.std(qon)
@@ -127,9 +127,8 @@ class Input():
     def create_qonqoff_balanced(N,  meanq, stdq, qseed=None):
         random.seed(qseed)
         #TODO error if not correct arguments
-        qoff = np.array([[random.random() for e in range(1)] for e in range(N)])
-        qon = np.array([[random.random() for e in range(1)] for e in range(N)])
-        
+        qoff = np.random.rand(N, 1)
+        qon = np.random.rand(N, 1)
         if N > 1: 
             qoff = qoff/np.std(qoff)
             qon = qon/np.std(qon)
@@ -146,26 +145,26 @@ class Input():
         '''docstring
         '''
         random.seed(qseed)
-
-        random_array = np.array([[random.random() for e in range(1)] for e in range(N)])
-        qoff = minq + np.multiply((maxq-minq), random_array)
-        random_array = np.array([[random.random() for e in range(1)] for e in range(N)])
-        qon = minq + np.multiply((maxq-minq), random_array)
+        
+        qoff = np.random.rand(N, 1)
+        qoff = minq + np.multiply((maxq-minq), qoff)
+        qon = np.random.rand(N, 1)
+        qon = minq + np.multiply((maxq-minq), qon)
         return [qon, qoff]
 
-    def markov(self): # Not a static method as in the Matlab code
+    def markov(self): 
         '''Takes qon, qoff, ron and roff from class object and generates
            input and x if xfix empty, generates input with xfix otherwise
         '''
         random.seed(self.xseed)
+
         ni = len(self.qon)
         nt = self.length 
-    
         w = np.log(self.qon/self.qoff) 
         
         # Generate x
         if self.xfix == None:
-            #no need to generate p0 again
+            self.get_p0()
             xs = np.zeros(np.shape(self.tvec)) 
 
             #Initial value
@@ -175,9 +174,9 @@ class Input():
             else:
                 xs[0] = 0
 
-            # make x
-            for n in np.arange(1, self.length): #Changed 2 to 1 
-                i = random.random()
+            # Make x
+            for n in np.arange(1, self.length): 
+                i = np.random.rand()
                 if xs[n-1] == 1: 
                     if i < self.roff*self.dt:
                         xs[n] = 0
@@ -207,10 +206,9 @@ class Input():
         random.seed(self.seed)
 
         # What does this for loop do?
-        np.set_printoptions(threshold=np.inf)
         for k in range(ni):
-            randon = np.array([[random.random() for e in range(np.shape(xon)[1])] for e in range(np.shape(xon)[0])])
-            randoff = np.array([[random.random() for e in range(np.shape(xoff)[1])] for e in range(np.shape(xoff)[0])])
+            randon = np.random.rand(np.shape(xon)[0],np.shape(xon)[1])
+            randoff = np.random.rand(np.shape(xoff)[0], np.shape(xoff)[1])
             sttemp = np.zeros((nt, 1))
             sttempon = np.zeros(np.shape(xon))
             sttempoff = np.zeros(np.shape(xoff))

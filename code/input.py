@@ -12,11 +12,6 @@ class Input():
     '''
     def __init__(self): #, dt, T, fHandle, seed, input, ron, roff, qon, qoff, kernel, kerneltau, xseed, xfix):
         # For all
-        #TODO should fHandle be a list, whats the input format?
-        # self.dt, self.T = dt, T
-        # self.fHandle = fHandle
-        # self.seed = seed
-        # self.input = self.fHandle[0]
         self.dt = None
         self.T = None          
         self.fHandle = [None, None]
@@ -24,11 +19,6 @@ class Input():
         self.input = None
 
         # For Markov models
-        # self.ron, self.roff = ron, roff 
-        # self.qon, self.qoff = qon, qoff
-        # self.kernel, self.kerneltau = kernel, kerneltau
-        # self.xseed, self.xfix = xseed, xfix
-        # self.x = fHandle[1]
         self.ron = None
         self.roff = None
         self.qon = []
@@ -180,7 +170,6 @@ class Input():
 
             #Initial value
             i = random.random()
-            print(i)
             if i < self.p0:
                 xs[0] = 1
             else:
@@ -219,7 +208,6 @@ class Input():
 
         # What does this for loop do?
         np.set_printoptions(threshold=np.inf)
-        print('In for loop') 
         for k in range(ni):
             randon = np.array([[random.random() for e in range(np.shape(xon)[1])] for e in range(np.shape(xon)[0])])
             randoff = np.array([[random.random() for e in range(np.shape(xoff)[1])] for e in range(np.shape(xoff)[0])])
@@ -235,7 +223,7 @@ class Input():
             np.where(sttempon==1)
 
             stsum = stsum + w[k]*sttemp #w[k] is alright sttemp is all zeros 
-        print('out for loop')
+
         if self.kernel != None:
             stsum = np.convolve(stsum.flatten(), kernelf, mode='full')
 

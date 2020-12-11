@@ -1,7 +1,7 @@
 # Input generator
 Uses an artificial neural network to generate an input based on the absence or presence of a hidden state.
 
-![Figure 1](zeldenrust_fig1.JPG)
+![Figure 1](https://www.frontiersin.org/files/Articles/237283/fncom-11-00049-HTML/image_m/fncom-11-00049-g001.jpg)
 
 The method is described in the following paper:<br>
 Zeldenrust, F., de Knecht, S., Wadman, W. J., Denève, S., Gutkin, B., Knecht, S. De, Denève, S. (2017). Estimating the Information Extracted by a Single Spiking Neuron from a Continuous Input Time Series. _Frontiers in Computational Neuroscience_, 11(June), 49. [doi:10.3389/FNCOM.2017.00049](https://doi.org/10.3389/fncom.2017.00049)<br>Please cite this reference when using this method.

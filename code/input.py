@@ -1,9 +1,15 @@
 '''
-input.py
-NB time (dt,T) in ms, freq in Hz, but qon en qoff in MHz
-always first 50 ms silent, then 50 ms noise, then rest
+    input.py
+    Class containing the input parameters for generating an input current.
+    The method is described in the following paper:
+    Zeldenrust, F., de Knecht, S., Wadman, W. J., Denève, S., Gutkin, B., Knecht, S. De, Denève, S. (2017). 
+    Estimating the Information Extracted by a Single Spiking Neuron from a Continuous Input Time Series. 
+    Frontiers in Computational Neuroscience, 11(June), 49. doi:10.3389/FNCOM.2017.00049
+    Please cite this reference when using this method.
+    
+    NB time (dt,T) in ms, freq in Hz, but qon en qoff in MHz
+    always first 50 ms silent, then 50 ms noise, then rest
 '''
-
 import numpy as np
 import random
 
@@ -29,8 +35,7 @@ class Input():
         self.x = None
         self.xfix = None
 
-        # Get dependend variables
-
+    # Get dependend variables
     def get_tvec(self):
         '''docstring
         '''
@@ -167,7 +172,7 @@ class Input():
             self.get_p0()
             xs = np.zeros(np.shape(self.tvec)) 
 
-            #Initial value
+            #Initial value 
             i = random.random()
             if i < self.p0:
                 xs[0] = 1
@@ -204,8 +209,7 @@ class Input():
         xoff = np.where(xs==0)
          
         random.seed(self.seed)
-
-        # What does this for loop do?
+        
         for k in range(ni):
             randon = np.random.rand(np.shape(xon)[0],np.shape(xon)[1])
             randoff = np.random.rand(np.shape(xoff)[0], np.shape(xoff)[1])
@@ -220,7 +224,7 @@ class Input():
             sttemp[xoff] = np.transpose(sttempoff)
             np.where(sttempon==1)
 
-            stsum = stsum + w[k]*sttemp #w[k] is alright sttemp is all zeros 
+            stsum = stsum + w[k]*sttemp 
 
         if self.kernel != None:
             stsum = np.convolve(stsum.flatten(), kernelf, mode='full')

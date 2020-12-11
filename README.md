@@ -25,5 +25,5 @@ The repository is organised into x main folders. The root contains the main.py f
 Run "python results/plotter.py" to visualize some of the results.
 
 ## License
-This repository has licensed under the MIT licence. Read [LICENCE.txt](https://github.com/) for the full terms and conditions.
+This repository has licensed under the MIT licence. Read [LICENCE.txt](https://github.com/Sargos-coder/internship/blob/master/LICENSE) for the full terms and conditions.
  

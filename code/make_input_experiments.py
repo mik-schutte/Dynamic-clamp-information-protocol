@@ -31,7 +31,7 @@ def make_input_experiments(qon_qoff_type, baseline, amplitude_scaling, tau, fact
         mean_firing_rate (kHz): Mean firing rate of the artificial neurons in kilohertz.
         sampling rate (kHZ): Sampling rate of the experimental setup (injected current) 
                              in kilohertz.
-        duration (ms): Length of the duration in milliseconds .
+        duration (ms): Length of the duration in milliseconds.
         seed (optional): Seed used in the random number generator.
 
     OUTPUT: 
@@ -63,7 +63,7 @@ def make_input_experiments(qon_qoff_type, baseline, amplitude_scaling, tau, fact
     input_bayes.ron = ron
     input_bayes.roff = roff
     input_bayes.seed = seed
-    input_bayes.xseed = seed
+    input_bayes.xseed = seed        #TODO Ask: What's the difference between seed, xseed and qseed?
 
     # Create qon/qoff
     if qon_qoff_type == 'normal':

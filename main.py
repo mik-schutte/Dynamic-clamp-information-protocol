@@ -11,7 +11,7 @@ mean_firing_rate = (0.5)/1000
 sampling_rate = 5      
 dt = 1/sampling_rate 
 duration = 20000
-qon_qoff_type = ''
+qon_qoff_type = 'balanced'
 
 print('Running...')
 [input_current, input_theory, hidden_state] = make_input_experiments(qon_qoff_type, baseline, amplitude, tau, factor_ron_roff, mean_firing_rate, sampling_rate, duration)

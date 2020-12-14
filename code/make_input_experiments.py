@@ -14,7 +14,6 @@
     Example use:
     [input_current, hidden_state] = make_input_experiments(0, 1000, 20/3000,40/3000, (0.5)/1000, 1, 20000);
     This creates an input current with baseline 0 pA, amplitude 1000 pA, tau=50 ms, the mean firing rate of neurons in the artificial network is 0.5 Hz, sampling rate of 1 kHz, 20000 ms long (you will need at least about 20 s for a good estimate. 
-
 ''' 
 from code.input import Input
 import numpy as np
@@ -39,7 +38,6 @@ def make_input_experiments(qon_qoff_type, baseline, amplitude_scaling, tau, fact
         input_theory: 1xN array with unscaled, theoretical input.
         hidden_state: 1xN array with hidden state values 0=off 1=on.
     '''
-
     # Set RNG seed, if no seed is provided
     if seed == None:
         np.random.seed()
@@ -74,7 +72,7 @@ def make_input_experiments(qon_qoff_type, baseline, amplitude_scaling, tau, fact
     elif qon_qoff_type == 'balanced':
         [input_bayes.qon, input_bayes.qoff] = input_bayes.create_qonqoff_balanced(N, mean_firing_rate, stdq, seed)
     elif qon_qoff_type == 'balanced_uniform':
-        minq = 100
+        minq = 100                  #TODO Ask: What are good default minq/maxq values?
         maxq = 1000
         [input_bayes.qon, input_bayes.qoff] = input_bayes.create_qonqoff_balanced_uniform(N, minq, maxq, seed)
     else: 
@@ -88,5 +86,4 @@ def make_input_experiments(qon_qoff_type, baseline, amplitude_scaling, tau, fact
     input_current = amplitude_scaling*input_bayes.input+baseline
     input_theory = input_bayes.input
     hidden_state = input_bayes.x
-
     return [input_current, input_theory, hidden_state]

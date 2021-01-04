@@ -105,20 +105,22 @@ class Input():
         qoff = np.random.randn(N, 1) 
         qon = np.random.randn(N, 1)
         if N > 1:
+            #Creates a q distribution with a standard deviation of 1 
             qoff = qoff/np.std(qoff)
             qon = qon/np.std(qon)
         qoff = qoff - np.mean(qoff)
         qon = qon - np.mean(qon)
         # TODO Check regime differences
         if regime == 1:   
-            # Coincedence regime !! qoff 0 verschuiven?
+            #Coincedence regime !! No E/I balance, little negative weights
             qoff = (alphan*qoff+1)*mutheta/N
             qon = (alphan*qon+2)*mutheta/N
         else:
-            #Push-pull regime !! weights negative fill in and check it out
+            #Push-pull regime !! E/I balance, negative weights
             qoff = (alphan*qoff+1)*mutheta/np.sqrt(N)
             qon = (alphan*qon+1+1/np.sqrt(N))*mutheta/np.sqrt(N)
         
+        #Set all negative firing rates to 0
         qoff[qoff<0] = abs(qoff[qoff<0])
         qon[qon<0] = abs(qon[qon<0])
         return [qon, qoff]

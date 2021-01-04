@@ -45,9 +45,9 @@ def make_input_experiments(qon_qoff_type, baseline, amplitude_scaling, tau, fact
 
     # Fixed parameters
     N = 1000                            
-    dt = 1./sampling_rate              #TODO Ask: Is alpha the same as alphan in create_qon_qoff()?
+    dt = 1./sampling_rate
     tau_exponential_kernel = 5 
-    alpha = np.sqrt(1/8) 
+    alpha = np.sqrt(1/8)            # SEM * N
     stdq = alpha*mean_firing_rate
     ron = 1./(tau*(1+factor_ron_roff))
     roff = factor_ron_roff*ron
@@ -61,18 +61,18 @@ def make_input_experiments(qon_qoff_type, baseline, amplitude_scaling, tau, fact
     input_bayes.ron = ron
     input_bayes.roff = roff
     input_bayes.seed = seed
-    input_bayes.xseed = seed        #TODO Ask: What's the difference between seed, xseed and qseed?
+    input_bayes.xseed = seed
 
     # Create qon/qoff
     if qon_qoff_type == 'normal':
-        mutheta = None                 #TODO Ask: What should mutheta look like?
-        alphan = None
-        regime = None
+        mutheta = 1             #The summed difference between qon and qoff
+        alphan = alpha
+        regime = 0
         [input_bayes.qon, input_bayes.qoff] = input_bayes.create_qonqoff(mutheta, N, alphan, regime, seed)
     elif qon_qoff_type == 'balanced':
         [input_bayes.qon, input_bayes.qoff] = input_bayes.create_qonqoff_balanced(N, mean_firing_rate, stdq, seed)
     elif qon_qoff_type == 'balanced_uniform':
-        minq = 100                  #TODO Ask: What are good default minq/maxq values?
+        minq = 100                  
         maxq = 1000
         [input_bayes.qon, input_bayes.qoff] = input_bayes.create_qonqoff_balanced_uniform(N, minq, maxq, seed)
     else: 

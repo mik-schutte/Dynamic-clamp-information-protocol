@@ -228,7 +228,7 @@ class Input():
             sttemp[xoff] = np.transpose(sttempoff)
 
             stsum = stsum + w[k]*sttemp 
-        print(w)
+
         if self.kernel != None:
             stsum = np.convolve(stsum.flatten(), kernelf, mode='full')
 

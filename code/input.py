@@ -9,7 +9,7 @@
     Please cite this reference when using this method.
     
     NB time (dt,T) in ms, freq in Hz, but qon en qoff in MHz
-    always first 50 ms silent, then 50 ms noise, then rest
+    always first 50 ms silent, then 50 ms noise, then rest   #TODO This isn't the case 
 '''
 import numpy as np
 
@@ -110,7 +110,7 @@ class Input():
             qon = qon/np.std(qon)
         qoff = qoff - np.mean(qoff)
         qon = qon - np.mean(qon)
-        # TODO Check regime differences
+
         if regime == 1:   
             #Coincedence regime !! No E/I balance, little negative weights
             qoff = (alphan*qoff+1)*mutheta/N
@@ -226,10 +226,9 @@ class Input():
          
             sttemp[xon] = np.transpose(sttempon)
             sttemp[xoff] = np.transpose(sttempoff)
-            np.where(sttempon==1)
 
             stsum = stsum + w[k]*sttemp 
-
+        print(w)
         if self.kernel != None:
             stsum = np.convolve(stsum.flatten(), kernelf, mode='full')
 

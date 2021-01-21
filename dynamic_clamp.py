@@ -4,18 +4,17 @@
     Generate an input based on a vector of conductances and more.
 '''
 import numpy as np
-from scipy.integrate import odeint
 from matplotlib import pyplot as plt
 
 #not for permanent use
-sampling_rate = 5      
-dt = 1/sampling_rate 
+sampling_rate = 5.      
+dt = round(1/sampling_rate, 4) 
 T = 20000
 
-weights = [[0.05], [0.04], [0.05], [0.326], [-0.551], [1.25], [1.589], [-0.554]]
+weights = [[0.5], [0.4], [0.05], [0.326], [-0.551], [1.25], [1.589], [-0.554]]
 weights = np.array(weights)
 
-time_vec = np.arange(dt, T+dt, dt).round(2)
+time_vec = np.arange(0, T+dt, dt).round(2)
 volt_vec = np.arange(-100, 75, 5)
 
 def get_g0(v_rest, weights):
@@ -33,6 +32,7 @@ def get_g0(v_rest, weights):
     #TODO are there really negative conductances?
     #TODO If g negative but weight positive?
     #TODO np.random.normal should be replaced by the Destexhe (2001) equation
+    #TODO extremely low conductance values
     N = len(weights)
 
     #Generate vector of conductances
@@ -50,14 +50,6 @@ def get_g0(v_rest, weights):
     return g_dict
 
 
-def differential_conductance(g, t, g0, tau, D, X):
-    '''docstring
-    '''
-    print('t=', t)
-    dgdt = -1/tau * (g - g0) + np.sqrt(D) * X(t)
-    return dgdt
-
-
 def get_point_conductance(g0, tau, sigma, time_vec):
     ''' Generate g(t) 
 
@@ -69,16 +61,16 @@ def get_point_conductance(g0, tau, sigma, time_vec):
     '''
     #Calculate noise 'diffusion' coefficient.
     D = 2 * sigma**2 / tau
+    h = abs(time_vec[0] - time_vec[1])
     
-    #Calculate Gaussian white noise with mean=0 and sd=sigma for all time points
-    X = np.random.normal(loc=0, scale=sigma, size=len(time_vec))
+    A = np.sqrt(D * tau / 2 * (1 - np.exp(-2 * h / tau) ))
 
-    #Integrate 
-    #Initial condition
-    g_start = 0 #np.zeros(X.shape)
-    print(g_start)
-    g = odeint(differential_conductance, g_start, time_vec, args=(g0, tau, D, X,))
-    return g
+    condar = {}
+    condar[0] = g0
+    for t in time_vec:
+        th = round(t+h, 3) 
+        condar[th] = g0 + (condar[t] - g0) * np.exp(-h/tau) + A * np.random.normal()
+    return condar 
 
 
 def get_input_LUT(volt_vec, g_dict):
@@ -103,15 +95,25 @@ def get_input_LUT(volt_vec, g_dict):
 
     return input_dict
 
+
 g_dict = get_g0(-65, weights)
-#input_dict = get_input_LUT(volt_vec, g_dict)
 
 #Test
-g0 = g_dict[0]
+g0 = 0.01
+
 tau = 2.7
 sigma = 0.0030
 D = 2 * sigma**2 / tau
-X = np.random.normal(loc=0, scale=sigma, size=len(time_vec))
+h = 0.2
+A = np.sqrt(D*tau/2 * (1-np.exp(-2*h/tau)))
 
-test = get_point_conductance(g0, tau, sigma, time_vec)
+condar = {}
+condar[0] = g0
+for t in time_vec:
+    tdt = round(t+dt, 3) 
+    condar[tdt] = g0 + (condar[t] - g0) * np.exp(-dt/tau) + A * np.random.normal()
 
+# plt.plot(condar.keys(), condar.values(), lw=1)
+# plt.show()
+x = np.random.normal()
+print(time_vec[1] - time_vec[0])

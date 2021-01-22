@@ -67,20 +67,22 @@ def get_stochastic_conductance(g0, tau, sigma, time_vec):
     sto_cond[0] = g0
 
     #Update dict following an exact update rule
-    for t in time_vec:
+    for t in time_vec[:-1]:
         th = round(t + h, 3) 
         sto_cond[th] = g0 + (sto_cond[t] - g0) * np.exp(-h / tau) + A * np.random.normal()
 
-    return sto_cond 
+    #Return as np.array
+    return np.fromiter(sto_cond.values(), dtype=float)
 
 
-def get_input_LUT(volt_vec, g_dict):
+def get_input_LUT(volt_vec, sto_cond, Er):
     ''' Create a look-up table (LUT) of injected currents based on conductance(t) 
         and the voltages in volt_vec.
 
         INPUT:
               volt_vec: vector of voltage values to determine I(t) for.
-              g_dict(dict): dictionary of individual conductances over time.
+              sto_cond(array): dictionary of individual conductances over time.
+              Er(int): inhibitory or excitatory conductances?
         OUTPUT:
               input_LUT(dict): keys are the voltage and value the I(t). 
     '''
@@ -88,13 +90,32 @@ def get_input_LUT(volt_vec, g_dict):
     #TODO if 0 volt input is also 0
     #TODO we don't really have a volt for the ANN neurons.
     #TODO if cond is negative split to gi?
-    N = len(g_dict)
-
+    N = len(sto_cond)
     input_LUT = {}
 
     for v in volt_vec:
-        input_LUT[v] = []
-        for i in range(N):
-            input_LUT[i][v] = g_dict[i] * (v - Er)
+        input_LUT[v] = sto_cond * (-v - Er)
 
     return input_LUT
+
+def get_ANN_LUT(g0_dict, time_vec, tau, sigma, Er):
+    
+
+
+#Test 
+weights = [0.5, 0.4, 0.8, 1.2, 0.08]
+tau = 2.7
+sigma = 0.0030
+time_vec = np.arange(0, 20, 0.2).round(3)
+volt_vec = np.arange(-100, 25, 5)
+
+g0_dict = get_g0(-65, weights)
+
+for g0 in g0_dict.values():
+    sto_cond = get_stochastic_conductance(g0, tau, sigma, time_vec)
+    
+    input_LUT = get_input_LUT(volt_vec, sto_cond, Er=0)
+    
+plt.plot(time_vec, input_LUT[-20])
+plt.show()
+

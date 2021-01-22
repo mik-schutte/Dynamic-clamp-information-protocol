@@ -4,7 +4,6 @@
     Generate an input based on a vector of conductances and more.
 '''
 import numpy as np
-from matplotlib import pyplot as plt
 
 def get_g0(v_rest, weights):
     ''' Creates a dictionary containing the 'base' conductance of each neuron

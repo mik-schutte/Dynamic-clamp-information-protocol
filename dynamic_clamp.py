@@ -24,7 +24,6 @@ def get_g0(v_rest, weights):
     '''
     #TODO are there really negative conductances?
     #TODO If g negative but weight positive?
-    #TODO np.random.normal should be replaced by the Destexhe (2001) equation
     #TODO seperate ge from gi?
     N = len(weights)
 
@@ -46,17 +45,16 @@ def get_stochastic_conductance(g0_dict, tau, sigma, time_vec):
     ''' Generate conductance over time as a stochastic process.  
 
         INPUT:
-              g0(dict): base conductance of neurons with index as key.
+              g0_dict(dict): base conductance of neurons with index as key.
               tau(float): time constant
               sigma(float): standard deviation of the conductance.
               time_vec(array): evenly spaced array containing each time point.
         OUTPUT:
-              sto_cond(dict): dictionary of conductances with time point as key.
+              sto_cond(dict): dictionary of stochasticconductances with index as key.
 
         D, A and update rule are based on A. Destexhe, M. Rudolph, J.M. Fellous 
         & T.J. Sejnowski (2001). 
     '''
-    #TODO sto_cond as dict or array?
     D = 2 * sigma**2 / tau                                 #Noise 'diffusion' coefficient
     h = abs(time_vec[0] - time_vec[1])                     #Integration step
     A = np.sqrt(D * tau / 2 * (1 - np.exp(-2 * h / tau) )) #Amplitude coefficient
@@ -79,13 +77,13 @@ def get_stochastic_conductance(g0_dict, tau, sigma, time_vec):
     return sto_cond 
 
 
-def get_input_LUT(volt_vec, sto_cond, Er):
+def get_input_LUT(sto_cond, volt_vec, Er):
     ''' Create a look-up table (LUT) of injected currents based on conductance(t) 
         and the voltages in volt_vec.
 
         INPUT:
-              volt_vec: vector of voltage values to determine I(t) for.
               sto_cond(array): dictionary of individual conductances over time.
+              volt_vec(array): vector of voltage values to determine I(t) for.
               Er(int): inhibitory or excitatory conductances?
         OUTPUT:
               input_LUT(dict): keys are the voltage and value the I(t). 
@@ -103,15 +101,3 @@ def get_input_LUT(volt_vec, sto_cond, Er):
             input_LUT[v] += sto_cond[i] * (-v - Er)
 
     return input_LUT
-
-#Test 
-weights = [.5, 0.4, 0.8, 1.2, 0.08]
-tau = 2.7
-sigma = 0.0030
-time_vec = np.arange(0, 20, 1).round(3)
-volt_vec = np.arange(-100, 25, 5)
-g0_dict = get_g0(-65, weights)
-
-sto_cond = get_stochastic_conductance(g0_dict, tau, sigma, time_vec)
-input_LUT = get_input_LUT(volt_vec, sto_cond, time_vec)
-print(input_LUT)

@@ -4,6 +4,7 @@
     Generate an input based on a vector of conductances and more.
 '''
 import numpy as np
+import code.input as Input
 
 def get_g0(v_rest, weights):
     ''' Creates a dictionary containing the 'base' conductance of each neuron
@@ -40,7 +41,7 @@ def get_g0(v_rest, weights):
     return g0_dict
 
 
-def get_stochastic_conductance(g0_dict, tau, sigma, time_vec):
+def get_stochastic_conductance(g0_dict, tau, sigma, T, dt):
     ''' Generate conductance over time as a stochastic process.  
 
         INPUT:
@@ -55,8 +56,7 @@ def get_stochastic_conductance(g0_dict, tau, sigma, time_vec):
         & T.J. Sejnowski (2001). 
     '''
     D = 2 * sigma**2 / tau                                 #Noise 'diffusion' coefficient
-    h = abs(time_vec[0] - time_vec[1])                     #Integration step
-    A = np.sqrt(D * tau / 2 * (1 - np.exp(-2 * h / tau) )) #Amplitude coefficient
+    A = np.sqrt(D * tau / 2 * (1 - np.exp(-2 * dt / tau) )) #Amplitude coefficient
 
     #Initiate dictionary
     sto_cond = {}
@@ -66,9 +66,9 @@ def get_stochastic_conductance(g0_dict, tau, sigma, time_vec):
         sto_cond[i][0] = g0
 
         #Update dict following an exact update rule
-        for t in time_vec[:-1]:
-            th = round(t + h, 3) 
-            sto_cond[i][th] = g0 + (sto_cond[i][t] - g0) * np.exp(-h / tau) + A * np.random.normal()
+        for t in np.arange(0, T, dt).round(3):
+            tdt = round(t + dt, 3)
+            sto_cond[i][tdt] = g0 + (sto_cond[i][t] - g0) * np.exp(-dt / tau) + A * np.random.normal()
         
         #Un-nest dict with index as key and a list of conductances
         sto_cond[i] = np.fromiter(sto_cond[i].values(), dtype=float)
@@ -88,7 +88,6 @@ def get_input_LUT(sto_cond, volt_vec, Er):
               input_LUT(dict): keys are the voltage and value the I(t). 
     '''
     #TODO get all keys from g_dict in stead of for i in range(N)
-    #TODO if 0 volt input is also 0
     #TODO we don't really have a volt for the ANN neurons.
     #TODO if cond is negative split to gi?
     N = len(sto_cond)

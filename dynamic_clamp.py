@@ -48,14 +48,15 @@ def get_stochastic_conductance(g0_dict, tau, sigma, T, dt):
               g0_dict(dict): base conductance of neurons with index as key.
               tau(float): time constant
               sigma(float): standard deviation of the conductance.
-              time_vec(array): evenly spaced array containing each time point.
+              T(int): total duration.
+              dt(float): time step.
         OUTPUT:
               sto_cond(dict): dictionary of stochasticconductances with index as key.
 
         D, A and update rule are based on A. Destexhe, M. Rudolph, J.M. Fellous 
         & T.J. Sejnowski (2001). 
     '''
-    D = 2 * sigma**2 / tau                                 #Noise 'diffusion' coefficient
+    D = 2 * sigma**2 / tau                                  #Noise 'diffusion' coefficient
     A = np.sqrt(D * tau / 2 * (1 - np.exp(-2 * dt / tau) )) #Amplitude coefficient
 
     #Initiate dictionary

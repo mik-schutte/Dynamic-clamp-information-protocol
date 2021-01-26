@@ -33,8 +33,8 @@ def make_dynamic_experiments(qon_qoff_type, baseline, amplitude_scaling, tau, fa
         seed (optional): Seed used in the random number generator.
 
     OUTPUT: 
-        input_current: 1xN array with current values in picoamperes
-        input_theory: 1xN array with unscaled, theoretical input in picoamperes.
+        exc_LUT(dict): dictionary of the injected current per voltage.
+        inh_LUT(dict): dictionary of the injected current per voltage.
         hidden_state: 1xN array with hidden state values 0=off 1=on.
     '''
     # Set RNG seed, if no seed is provided

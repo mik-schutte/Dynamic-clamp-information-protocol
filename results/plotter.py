@@ -29,9 +29,9 @@ elif file_to_plot == 'hiddenstate.csv':
     plt.title('Hidden state')
 else:
     input_ = np.genfromtxt('results/'+file_to_plot, delimiter = ',')
-    plt.hist(input_, bins=100, edgecolor='black')
-    plt.xlabel('pA')
-    plt.ylabel('Frequency')
+    plt.plot(input_)
+    plt.xlabel('Time(ms)')
+    plt.ylabel('pA')
     plt.title(file_to_plot.strip('.csv'))
 
 plt.show()

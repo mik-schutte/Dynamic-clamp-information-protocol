@@ -81,7 +81,6 @@ def make_input_experiments(qon_qoff_type, baseline, amplitude_scaling, tau, fact
     input_bayes.get_all()
     input_bayes.x = input_bayes.markov_hiddenstate()
     input_bayes.input = input_bayes.markov_input()
-    #input_bayes.generate()
 
     #Scale for experiments
     input_current = amplitude_scaling*input_bayes.input+baseline

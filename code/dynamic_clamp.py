@@ -15,8 +15,8 @@ def get_g0(v_rest, weights):
               weights(array): weights of each ANN neuron.
               time_vec(array): vector of time with dt timesteps.
         OUTPUT: 
-              g0_dict(dict): dictionary of 'base' conductances with neuron index as 
-              key.
+              [g0_exc_dict, g0_inh_dict]: dictionaries of 'base' conductances with 
+                                          neuron index as key.
 
         Base conductance: value where g0 * (Vrest - Er) = weight.
         The reversal potential (Er) is based on A. Destexhe, M. Rudolph, J.M. Fellous 
@@ -27,18 +27,22 @@ def get_g0(v_rest, weights):
     #TODO seperate ge from gi?
     N = len(weights)
 
-    #Generate g0 for every neuron (i)
-    g0_dict = {}
+    #Initiate dictionaries
+    g0_exc_dict = {}
+    g0_inh_dict = {}
+
+    #Get g0 and seperate in to inhibitory and excitatory conductance
     for i in range(N):
         if weights[i] > 0:
             Er = 0
+            g0 = float(weights[i] / (-v_rest - Er))
+            g0_exc_dict[i] = g0
         else: 
             Er = -75
-        
-        g0 = float(weights[i] / (-v_rest - Er))
-        g0_dict[i] = g0
+            g0 = float(weights[i] / (-v_rest - Er))
+            g0_inh_dict[i] = abs(g0)
 
-    return g0_dict
+    return [g0_exc_dict, g0_inh_dict]
 
 
 def get_stochastic_conductance(g0_dict, tau, sigma, T, dt):
@@ -56,12 +60,13 @@ def get_stochastic_conductance(g0_dict, tau, sigma, T, dt):
         D, A and update rule are based on A. Destexhe, M. Rudolph, J.M. Fellous 
         & T.J. Sejnowski (2001). 
     '''
+    N = len(g0_dict)
     D = 2 * sigma**2 / tau                                  #Noise 'diffusion' coefficient
     A = np.sqrt(D * tau / 2 * (1 - np.exp(-2 * dt / tau) )) #Amplitude coefficient
-
+    
     #Initiate dictionary
     sto_cond = {}
-    for i in g0_dict.keys():
+    for i in range(N):
         g0 = g0_dict[i]
         sto_cond[i] = {}
         sto_cond[i][0] = g0
@@ -91,12 +96,9 @@ def get_input_LUT(sto_cond, volt_vec, Er):
     #TODO get all keys from g_dict in stead of for i in range(N)
     #TODO we don't really have a volt for the ANN neurons.
     #TODO if cond is negative split to gi?
-    N = len(sto_cond)
+    
     input_LUT = {}
-
     for v in volt_vec:
-        input_LUT[v] = np.empty_like(sto_cond[0])
-        for i in range(N):
-            input_LUT[v] += sto_cond[i] * (-v - Er)
+        input_LUT[v] = sto_cond * (-v - Er)
 
     return input_LUT

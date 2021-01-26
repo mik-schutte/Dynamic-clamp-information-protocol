@@ -1,15 +1,42 @@
 '''
     make_dynamic_experiments.py
 
+    Make LUT of a dynamic input current based on a artificial network responding to a hidden state
+    The method is described in the following paper:
+    Zeldenrust, F., de Knecht, S., Wadman, W. J., Denève, S., Gutkin, B., Knecht, S. De, Denève, S. (2017). 
+    Estimating the Information Extracted by a Single Spiking Neuron from a Continuous Input Time Series. 
+    Frontiers in Computational Neuroscience, 11(June), 49. doi:10.3389/FNCOM.2017.00049
+    Please cite this reference when using this method.
+    
+    NB Make sure that you save the hidden state with the experiments, it is
+    essential for the information calculation!
 '''
 import numpy as np
 from code.input import Input
 from code.dynamic_clamp import get_g0, get_input_LUT 
 
 def make_dynamic_experiments(qon_qoff_type, baseline, amplitude_scaling, tau, factor_ron_roff, mean_firing_rate, sampling_rate, duration, dv, seed=None):
-    '''docstring
+    ''' Make input current look up table (LUT) based on a artificial network responding
+        to a hidden state.
+
+    INPUT:
+        qon_qoff_type (str): The method of qon/qoff generation. Options are normal,
+                             balanced and balanced_uniform.
+        baseline (pA): Baseline for scaling the input current in picoampere.
+        amplitude_scaling (pA): Scaling of the stimulus in picoampere
+        tau (ms): Switching speed of the hidden state in milliseconds.
+        mean_firing_rate (kHz): Mean firing rate of the artificial neurons in kilohertz.
+        sampling rate (kHZ): Sampling rate of the experimental setup (injected current) 
+                             in kilohertz.
+        duration (ms): Length of the duration in milliseconds.
+        dv (float): resolution of voltage steps  
+        seed (optional): Seed used in the random number generator.
+
+    OUTPUT: 
+        input_current: 1xN array with current values in picoamperes
+        input_theory: 1xN array with unscaled, theoretical input in picoamperes.
+        hidden_state: 1xN array with hidden state values 0=off 1=on.
     '''
-    
     # Set RNG seed, if no seed is provided
     if seed == None:
         np.random.seed()

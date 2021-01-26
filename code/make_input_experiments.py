@@ -86,4 +86,6 @@ def make_input_experiments(qon_qoff_type, baseline, amplitude_scaling, tau, fact
     input_current = amplitude_scaling*input_bayes.input+baseline
     input_theory = input_bayes.input
     hidden_state = input_bayes.x
+
     return [input_current, input_theory, hidden_state]
+    

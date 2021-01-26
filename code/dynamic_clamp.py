@@ -1,7 +1,7 @@
 '''
     dynamic_clamp.py
 
-    Generate an input based on a vector of conductances and more.
+    File containing the functions used in make_dynamic_experiments and main(dynamic).
 '''
 import numpy as np
 import code.input as Input
@@ -22,9 +22,6 @@ def get_g0(v_rest, weights):
         The reversal potential (Er) is based on A. Destexhe, M. Rudolph, J.M. Fellous 
         & T.J. Sejnowski (2001). 
     '''
-    #TODO are there really negative conductances?
-    #TODO If g negative but weight positive?
-    #TODO seperate ge from gi?
     N = len(weights)
 
     #Initiate dictionaries
@@ -92,11 +89,7 @@ def get_input_LUT(sto_cond, volt_vec, Er):
               Er(int): inhibitory or excitatory conductances?
         OUTPUT:
               input_LUT(dict): keys are the voltage and value the I(t). 
-    '''
-    #TODO get all keys from g_dict in stead of for i in range(N)
-    #TODO we don't really have a volt for the ANN neurons.
-    #TODO if cond is negative split to gi?
-    
+    '''  
     input_LUT = {}
     for v in volt_vec:
         input_LUT[v] = sto_cond * (-v - Er)

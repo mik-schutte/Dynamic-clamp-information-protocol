@@ -12,6 +12,7 @@
     always first 50 ms silent, then 50 ms noise, then rest   #TODO This isn't the case 
 '''
 import numpy as np
+import matplotlib.pyplot as plt
 
 class Input():
     '''Class containing the input parameters.
@@ -94,6 +95,7 @@ class Input():
         self.get_theta()
         self.get_w()
 
+
     @staticmethod
     def create_qonqoff(mutheta, N, alphan, regime, qseed=None):
         '''Generates normally distributed [qon, qoff] with qon and qoff 
@@ -125,6 +127,7 @@ class Input():
         qon[qon<0] = abs(qon[qon<0])
         return [qon, qoff]
     
+
     @staticmethod
     def create_qonqoff_balanced(N,  meanq, stdq, qseed=None):
         '''Generates normally distributed [qon, qoff] with qon and qoff 
@@ -146,6 +149,7 @@ class Input():
         qon[qon<0] = abs(qon[qon<0])
         return [qon, qoff]
 
+
     @staticmethod
     def create_qonqoff_balanced_uniform(N, minq, maxq, qseed=None):
         '''Generates uniformly distributed [qon, qoff] with qon and qoff 
@@ -159,6 +163,7 @@ class Input():
         qon = np.random.rand(N, 1)
         qon = minq + np.multiply((maxq-minq), qon)
         return [qon, qoff]
+
 
     def markov_hiddenstate(self): 
         '''Takes ron and roff from class object and generates
@@ -195,6 +200,7 @@ class Input():
             xs = self.xfix
 
         return xs
+
 
     def markov_input(self, dynamic=False):
         '''Takes qon, qoff and hiddenstate and generates input.
@@ -242,6 +248,10 @@ class Input():
                 stsum = stsum + dynamic[k]*sttemp
             else:
                 stsum = stsum + w[k]*sttemp 
+
+            #SanityCheck for individual spikes
+            # plt.plot(sttemp)
+            # plt.show()
 
         if self.kernel != None:
             stsum = np.convolve(stsum.flatten(), kernelf, mode='full')

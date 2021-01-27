@@ -12,6 +12,7 @@
     essential for the information calculation!
 '''
 import numpy as np
+import matplotlib.pyplot as plt
 from code.input import Input
 from code.dynamic_clamp import get_g0, get_input_LUT 
 
@@ -90,5 +91,11 @@ def make_dynamic_experiments(qon_qoff_type, baseline, amplitude_scaling, tau, fa
     
     exc_LUT = get_input_LUT(g_exc, dv, Er_exc)
     inh_LUT = get_input_LUT(g_inh, dv, Er_inh)
+
+    #SanityCheck for input (Vm=-40) and hiddenstate
+    #plt.plot(exc_LUT[-40])
+    #plt.plot(inh_LUT[-40])
+    #plt.plot(input_bayes.x)
+    #plt.show()
 
     return [exc_LUT, inh_LUT, input_bayes.x]

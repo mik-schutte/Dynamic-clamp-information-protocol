@@ -51,7 +51,7 @@ def make_dynamic_experiments(qon_qoff_type, baseline, amplitude_scaling, tau, fa
     ron = 1./(tau*(1+factor_ron_roff))
     roff = factor_ron_roff*ron
     v_rest = -65
-    volt_vec = np.arange(-100, 25, dv).round(3)
+    Er_exc, Er_inh = (0, -75)
 
     #Create input from artifical network
     input_bayes = Input()
@@ -84,11 +84,11 @@ def make_dynamic_experiments(qon_qoff_type, baseline, amplitude_scaling, tau, fa
     input_bayes.x = input_bayes.markov_hiddenstate()
 
     #Generate exc and inh LUT
-    g0_exc, g0_inh = get_g0(v_rest, input_bayes.w)
+    g0_exc, g0_inh = get_g0(v_rest, input_bayes.w, Er_exc, Er_inh)
     g_exc = input_bayes.markov_input(g0_exc)
     g_inh = input_bayes.markov_input(g0_inh)
     
-    exc_LUT = get_input_LUT(g_exc, volt_vec, 0)
-    inh_LUT = get_input_LUT(g_inh, volt_vec, -75)
+    exc_LUT = get_input_LUT(g_exc, dv, Er_exc)
+    inh_LUT = get_input_LUT(g_inh, dv, Er_inh)
 
     return [exc_LUT, inh_LUT, input_bayes.x]

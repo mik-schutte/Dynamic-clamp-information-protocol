@@ -6,14 +6,14 @@
 import numpy as np
 import code.input as Input
 
-def get_g0(v_rest, weights):
+def get_g0(v_rest, weights, Er_exc, Er_inh):
     ''' Creates a dictionary containing the 'base' conductance of each neuron
         in the ANN. Neuron index is used as dictionary key. 
 
         INPUT:
               v_rest(int): resting membrane potential of the neurons in mV.
               weights(array): weights of each ANN neuron.
-              time_vec(array): vector of time with dt timesteps.
+              Er_exc/inh(int): reversal potential of exc. and inh. neurons in mV.
         OUTPUT: 
               [g0_exc_dict, g0_inh_dict]: dictionaries of 'base' conductances with 
                                           neuron index as key.
@@ -31,12 +31,10 @@ def get_g0(v_rest, weights):
     #Get g0 and seperate in to inhibitory and excitatory conductance
     for i in range(N):
         if weights[i] > 0:
-            Er = 0
-            g0 = float(weights[i] / (-v_rest - Er))
-            g0_exc_dict[i] = g0
+            g0 = float(weights[i] / (-v_rest - Er_exc))
+            g0_exc_dict[i] = abs(g0)
         else: 
-            Er = -75
-            g0 = float(weights[i] / (-v_rest - Er))
+            g0 = float(weights[i] / (-v_rest - Er_inh))
             g0_inh_dict[i] = abs(g0)
 
     return [g0_exc_dict, g0_inh_dict]
@@ -79,17 +77,18 @@ def get_stochastic_conductance(g0_dict, tau, sigma, T, dt):
     return sto_cond 
 
 
-def get_input_LUT(sto_cond, volt_vec, Er):
+def get_input_LUT(sto_cond, dv, Er):
     ''' Create a look-up table (LUT) of injected currents based on conductance(t) 
-        and the voltages in volt_vec.
+        and the voltages from -100 to +20 mV.
 
         INPUT:
               sto_cond(array): dictionary of individual conductances over time.
-              volt_vec(array): vector of voltage values to determine I(t) for.
+              dv(int): resolution of the voltage steps minimal 0.001.
               Er(int): inhibitory or excitatory conductances?
         OUTPUT:
               input_LUT(dict): keys are the voltage and value the I(t). 
     '''  
+    volt_vec = np.arange(-100, 20+dv, dv).round(3)
     input_LUT = {}
     for v in volt_vec:
         input_LUT[v] = sto_cond * (-v - Er)

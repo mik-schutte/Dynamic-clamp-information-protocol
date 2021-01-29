@@ -28,7 +28,7 @@ input_type = 'dynamic'
 
 # Run
 print('Running...')
-if input_type == 'normal':
+if input_type == 'current':
     [input_current, input_theory, hidden_state] = make_input_experiments(qon_qoff_type, baseline, amplitude_scaling, tau, factor_ron_roff, mean_firing_rate, sampling_rate, duration)
     np.savetxt(f'results/hiddenstate.csv', hidden_state, delimiter=',')
     np.savetxt(f'results/input_current.csv', input_current, delimiter=',')

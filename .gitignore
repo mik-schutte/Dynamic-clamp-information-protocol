@@ -3,5 +3,6 @@ code/__pycache__/
 test.py
 results/*
 results/plotter.py
-receiving neuron.ipynb
+neuron_model.ipynb
+get_parameters.ipynb
 .ipynb_checkpoints

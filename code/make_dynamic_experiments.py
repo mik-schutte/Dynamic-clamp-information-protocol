@@ -89,13 +89,27 @@ def make_dynamic_experiments(qon_qoff_type, baseline, amplitude_scaling, tau, fa
     g_exc = input_bayes.markov_input(g0_exc)
     g_inh = input_bayes.markov_input(g0_inh)
     
+    #Generate input_current for comparison
+    input_theory = input_bayes.markov_input()
+
     exc_LUT = get_input_LUT(g_exc, dv, Er_exc)
     inh_LUT = get_input_LUT(g_inh, dv, Er_inh)
 
-    #SanityCheck for input (Vm=-40) and hiddenstate
-    #plt.plot(exc_LUT[-40])
-    #plt.plot(inh_LUT[-40])
-    #plt.plot(input_bayes.x)
-    #plt.show()
+    # #SanityCheck for input (Vm=-40) and hiddenstate
+    # fig, axs = plt.subplots(2, figsize=(12,12))
+    # fig.suptitle('Dynamic Clamp at -40')
 
-    return [exc_LUT, inh_LUT, input_bayes.x]
+    # for idx, val in enumerate(input_bayes.x):
+    #     if val == 1:
+    #         axs[0].axvline(idx, c='lightgray')
+    #         axs[1].axvline(idx, c='lightgray')
+
+    # axs[0].plot(exc_LUT[-40], c='red')
+    # axs[0].set(ylabel='Exc. conductance [mS]')
+
+    # axs[1].plot(inh_LUT[-40], c='blue')
+    # axs[1].set(ylabel='Inh. conductance [mS]')
+    
+    # plt.show()
+
+    return [exc_LUT, inh_LUT, input_theory, input_bayes.x]

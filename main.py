@@ -23,7 +23,7 @@ sampling_rate = 5
 dt = 1/sampling_rate 
 dv = 0.5
 duration = 2000
-qon_qoff_type = 'normal'
+qon_qoff_type = 'balanced'
 input_type = 'dynamic'
 
 # Run
@@ -35,7 +35,7 @@ if input_type == 'current':
     np.savetxt(f'results/input_theory.csv', input_theory, delimiter=',')
 
 elif input_type == 'dynamic':
-    [exc_LUT, inh_LUT, hidden_state] = make_dynamic_experiments(qon_qoff_type, baseline, amplitude_scaling, tau, factor_ron_roff, mean_firing_rate, sampling_rate, duration, dv)
+    [exc_LUT, inh_LUT, input_theory, hidden_state] = make_dynamic_experiments(qon_qoff_type, baseline, amplitude_scaling, tau, factor_ron_roff, mean_firing_rate, sampling_rate, duration, dv)
     np.savetxt(f'results/hiddenstate.csv', hidden_state, delimiter=',')
     np.save('results/exc_LUT.npy', exc_LUT)
     np.save('results/inh_LUT.npy', inh_LUT)

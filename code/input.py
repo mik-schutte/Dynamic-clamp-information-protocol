@@ -249,7 +249,7 @@ class Input():
             else:
                 stsum = stsum + w[k]*sttemp 
 
-            #SanityCheck for individual spikes
+            # #SanityCheck for individual spikes
             # plt.plot(sttemp)
             # plt.show()
 

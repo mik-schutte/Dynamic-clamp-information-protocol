@@ -5,6 +5,7 @@
 '''
 import numpy as np
 import code.input as Input
+import matplotlib.pyplot as plt
 
 def get_g0(v_rest, weights, Er_exc, Er_inh):
     ''' Creates a dictionary containing the 'base' conductance of each neuron
@@ -36,6 +37,10 @@ def get_g0(v_rest, weights, Er_exc, Er_inh):
         else: 
             g0 = float(weights[i] / (-v_rest - Er_inh))
             g0_inh_dict[i] = abs(g0)
+
+    #Sanitycheck weights        
+    # plt.hist(weights, bins=100)
+    # plt.show()
 
     return [g0_exc_dict, g0_inh_dict]
 

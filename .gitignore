@@ -2,7 +2,6 @@ __pycache__/
 code/__pycache__/
 test.py
 results/*
-results/plotter.py
 neuron_model.ipynb
 get_parameters.ipynb
 .ipynb_checkpoints

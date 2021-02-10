@@ -11,13 +11,17 @@
 from code.input import Input
 from code.make_input_experiments import make_input_experiments
 from code.make_dynamic_experiments import make_dynamic_experiments
+from code.analyze_exp import analyze_exp
 import numpy as np
 
 # Set parameters
-baseline = 0           
+baseline = 0          
+theta = 0 
 amplitude_scaling = 700      
 tau = 50               
 factor_ron_roff = 2    
+ron = 1./(tau*(1+factor_ron_roff))
+roff = factor_ron_roff*ron
 mean_firing_rate = (0.5)/1000 
 sampling_rate = 5      
 dt = 1/sampling_rate 
@@ -42,5 +46,9 @@ elif input_type == 'dynamic':
 
 else: 
     raise ValueError('input_type should be normal or dynamic')
+
+# Calculate Mutual information
+Output = analyze_exp(ron, roff, hidden_state, input_theory, dt, 0)
+np.save('results/MI.npy', Output)
 
 print('Done')

@@ -9,38 +9,9 @@ import matplotlib.pyplot as plt
 import os
 from brian2.units.stdunits import mV, ms, mS, uA
 
-def plot_file():
-    # Get available files for plotting
-    path_to_results = os.path.dirname(os.path.abspath(__file__))
-    filelist = os.listdir(path_to_results)
-    filelist.remove('plotter.py')
-
-    # Prompt for specific file
-    print('Which of the following files do you want to plot? \n', filelist, '\n')
-    file_to_plot = input('Filename = ')
-
-    # Plot
-    if file_to_plot not in filelist:
-        raise ValueError('File not available. Provide full filename.csv')
-    elif file_to_plot == 'hiddenstate.csv': 
-        hiddenstate = np.genfromtxt('results/'+file_to_plot, delimiter = ',')
-        plt.plot(hiddenstate)
-        plt.yticks([0,1])
-        plt.ylabel('On or off')
-        plt.xlabel('dt')
-        plt.title('Hidden state')
-    else:
-        input_ = np.genfromtxt('results/'+file_to_plot, delimiter = ',')
-        plt.plot(input_)
-        plt.xlabel('Time(ms)')
-        plt.ylabel('pA')
-        plt.title(file_to_plot.strip('.csv'))
-
-    plt.show()
-    return
-
 def plot_dynamicclamp(statemon, g_exc, g_inh, hiddenstate):
-    '''docstring'''
+    '''Plots the injected conductance and voltage trace.
+    '''
     fig, axs = plt.subplots(3, figsize=(12,12))
     fig.suptitle('Dynamic Clamp')
     axs[0].plot(statemon.t/ms, g_exc(statemon.t)/mS, c='red')
@@ -58,7 +29,8 @@ def plot_dynamicclamp(statemon, g_exc, g_inh, hiddenstate):
     return
 
 def plot_currentclamp(statemon, hiddenstate):
-    '''docstring'''
+    '''Plots the injected current and voltage trace
+    '''
     fig, axs = plt.subplots(2, figsize=(12,12))
     fig.suptitle('Current Clamp')
     axs[0].plot(statemon.t/ms, statemon.I_inj[0]/uA, c='red')
@@ -73,7 +45,8 @@ def plot_currentclamp(statemon, hiddenstate):
     return
 
 def plot_compare(dynamic_statemon, current_statemon, hiddenstate):
-    '''docstring'''
+    '''Compares the dynamic voltage trace and current voltage trace.
+    '''
     fig, axs = plt.subplots(2, figsize=(12,12))
     fig.suptitle('Comparison between Dynamic and Current Clamp', y=0.95)
 

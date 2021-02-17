@@ -1,7 +1,7 @@
 __pycache__/
 code/__pycache__/
 .pytest_cache/
-.vscode/settings.json
+.vscode
 .ipynb_checkpoints
 
 test.py

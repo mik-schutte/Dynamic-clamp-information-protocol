@@ -117,7 +117,7 @@ def simulate_barrel_PC(inj_input, simulation_time, clamp_type, Ni=None):
 
     # Neuron parameters
     ## Pick a random set of parameters
-    parameters = np.loadtxt('PC_parameters.csv', delimiter=',')
+    parameters = np.loadtxt('parameters/PC_parameters.csv', delimiter=',')
     if Ni == None:
         Ni = np.random.randint(np.shape(parameters)[1])
     
@@ -202,7 +202,7 @@ def simulate_barrel_IN(inj_input, simulation_time, clamp_type, Ni=None):
 
     # Neuron parameters
     ## Pick a random set of parameters
-    parameters = np.loadtxt('IN_parameters.csv', delimiter=',')
+    parameters = np.loadtxt('parameters/IN_parameters.csv', delimiter=',')
     if Ni == None:
         Ni = np.random.randint(np.shape(parameters)[1])
     

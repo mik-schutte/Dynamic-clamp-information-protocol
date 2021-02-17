@@ -18,6 +18,7 @@ def simulate_Wang_Buszaki(inj_input, simulation_time, clamp_type='current'):
         OUTPUT:
             StateMonitor: Brian2 StateMonitor with recorded fields
             ['v', 'input' or 'conductance']
+            SpikeMonitor: Brian2 SpikeMonitor
 
         Xiao-Jing Wang & György Buzsáki, (1996). Gamma Oscillation 
         by synaptic inhibition in a hippocampal interneuronal network 
@@ -65,19 +66,21 @@ def simulate_Wang_Buszaki(inj_input, simulation_time, clamp_type='current'):
         '''
 
     # Neuron & parameter initialization
-    neuron = b2.NeuronGroup(1, eqs+eqs_input, method='exponential_euler')
+    neuron = b2.NeuronGroup(1, eqs+eqs_input, method='exponential_euler', threshold='v>-20*mV',
+                            refractory=2*b2.ms)
     neuron.v = -70*b2.mV
     neuron.h = 1
 
     # Track the parameters during simulation
     M = b2.StateMonitor(neuron, tracking, record=True)
+    S = b2.SpikeMonitor(neuron, record=True)
 
     # Run the simulation
     net = b2.Network(neuron)
-    net.add(M)
+    net.add(M, S)
     net.run(simulation_time, report='text')
 
-    return M
+    return M, S
 
 
 def simulate_barrel_PC(inj_input, simulation_time, clamp_type):
@@ -158,9 +161,11 @@ def simulate_barrel_PC(inj_input, simulation_time, clamp_type):
     return M
 
 
-inj_input = np.genfromtxt('results/input_current.csv')
-inj_input = b2.TimedArray(inj_input*b2.uamp, dt=0.2*b2.ms)
-simulation_time = 2000*b2.ms
 
-monitor = simulate_barrel_PC(inj_input, simulation_time, clamp_type='current')
-print(monitor)
+# Test
+# inj_input = np.genfromtxt('results/input_current.csv')
+# inj_input = b2.TimedArray(inj_input*b2.uamp, dt=0.2*b2.ms)
+# simulation_time = 2000*b2.ms
+
+# monitor = simulate_barrel_PC(inj_input, simulation_time, clamp_type='current')
+# print(monitor)

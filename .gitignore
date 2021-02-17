@@ -5,3 +5,4 @@ results/*
 neuron_model.ipynb
 get_parameters.ipynb
 .ipynb_checkpoints
+.vscode

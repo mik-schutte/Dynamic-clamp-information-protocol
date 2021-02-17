@@ -1,8 +1,12 @@
 __pycache__/
 code/__pycache__/
+.pytest_cache/
+.vscode/settings.json
+.ipynb_checkpoints
+
 test.py
 results/*
 neuron_model.ipynb
 get_parameters.ipynb
-.ipynb_checkpoints
-.vscode
+
+

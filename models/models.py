@@ -113,7 +113,7 @@ def simulate_barrel_PC(inj_input, simulation_time, clamp_type, Ni=None):
         eqs_input = '''I_exc = g_exc(t) * (0*mV - v) : amp
                  I_inh = g_inh(t) * (-75*mV - v) : amp
                  I_inj = I_exc + I_inh : amp'''
-        tracking = ['v', 'g_exc', 'g_inh']
+        tracking = ['v', 'I_inj']
 
     # Neuron parameters
     ## Pick a random set of parameters
@@ -199,7 +199,7 @@ def simulate_barrel_IN(inj_input, simulation_time, clamp_type, Ni=None):
         eqs_input = '''I_exc = g_exc(t) * (0*mV - v) : amp
                  I_inh = g_inh(t) * (-75*mV - v) : amp
                  I_inj = I_exc + I_inh : amp'''
-        tracking = ['v', 'g_exc', 'g_inh']
+        tracking = ['v', 'I_inj']
 
     # Neuron parameters
     ## Pick a random set of parameters

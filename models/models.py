@@ -154,7 +154,7 @@ def simulate_barrel_PC(inj_input, simulation_time, clamp_type, Ni=None):
 
     # Neuron & parameter initialization
     neuron = b2.NeuronGroup(1, model=eqs+eqs_input, method='exponential_euler',
-                        threshold ='m > 0.5', refractory=2*b2.ms, reset=None, dt=0.2*b2.ms)
+                        threshold ='m > 0.5', refractory=2*b2.ms, reset=None, dt=0.5*b2.ms)
     neuron.v = -65*b2.mV
 
     # Track the parameters during simulation
@@ -240,7 +240,7 @@ def simulate_barrel_IN(inj_input, simulation_time, clamp_type, Ni=None):
 
     # Neuron & parameter initialization
     neuron = b2.NeuronGroup(1, model=eqs+eqs_input, method='exponential_euler',
-                        threshold ='m > 0.5', refractory=2*b2.ms, reset=None, dt=0.2*b2.ms)
+                        threshold ='m > 0.5', refractory=2*b2.ms, reset=None, dt=0.5*b2.ms)
     neuron.v = -65*b2.mV
 
     # Track the parameters during simulation

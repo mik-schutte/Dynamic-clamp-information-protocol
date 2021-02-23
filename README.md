@@ -17,6 +17,8 @@ Or by
 
 `pip install -r requirements.txt`
 
+One of the functions `analyze_exp` is imported from Matlab. In chase dependence is flawed, see [this file](file:///C:/Users/miksc/OneDrive/Documenten/Study/Internship/Zeldenrust/Scripts/analyze_exp/for_redistribution_files_only/.html).
+
 
 ## Usage
 Specify your parameters like duration, mean firing rate, qon/qoff generator type and input type in the main.py file.

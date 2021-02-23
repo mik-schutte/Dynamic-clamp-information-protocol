@@ -9,9 +9,8 @@
     Please cite this reference when using this method.
 '''
 from code.input import Input
-from code.make_input_experiments import make_input_experiments
 from code.make_dynamic_experiments import make_dynamic_experiments
-from code.analyze_exp import analyze_exp
+import matlab, analyze_exp
 import numpy as np
 
 # Set parameters
@@ -32,23 +31,8 @@ input_type = 'dynamic'
 
 # Run
 print('Running...')
-if input_type == 'current':
-    [input_current, input_theory, hidden_state] = make_input_experiments(qon_qoff_type, baseline, amplitude_scaling, tau, factor_ron_roff, mean_firing_rate, sampling_rate, duration)
-    np.savetxt(f'results/hiddenstate.csv', hidden_state, delimiter=',')
-    np.savetxt(f'results/input_current.csv', input_current, delimiter=',')
-    np.savetxt(f'results/input_theory.csv', input_theory, delimiter=',')
-
-elif input_type == 'dynamic':
-    [exc_LUT, inh_LUT, input_theory, hidden_state] = make_dynamic_experiments(qon_qoff_type, baseline, amplitude_scaling, tau, factor_ron_roff, mean_firing_rate, sampling_rate, duration, dv)
-    np.savetxt(f'results/hiddenstate.csv', hidden_state, delimiter=',')
-    np.save('results/exc_LUT.npy', exc_LUT)
-    np.save('results/inh_LUT.npy', inh_LUT)
-
-else: 
-    raise ValueError('input_type should be normal or dynamic')
-
-# Calculate Mutual information
-Output = analyze_exp(ron, roff, hidden_state, input_theory, dt, 0)
-np.save('results/MI.npy', Output)
-
-print('Done')
+[exc_LUT, inh_LUT, input_theory, hidden_state] = make_dynamic_experiments(qon_qoff_type, baseline, amplitude_scaling, tau, factor_ron_roff, mean_firing_rate, sampling_rate, duration, dv)
+np.savetxt(f'results/hiddenstate.csv', hidden_state, delimiter=',')
+np.savetxt(f'results/input_theory.csv', input_theory, delimiter=',')
+np.save('results/exc_LUT.npy', exc_LUT)
+np.save('results/inh_LUT.npy', inh_LUT)

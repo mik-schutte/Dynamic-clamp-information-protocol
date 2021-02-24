@@ -83,7 +83,7 @@ def simulate_Wang_Buszaki(inj_input, simulation_time, clamp_type='current'):
     return M, S
 
 
-def simulate_barrel_PC(inj_input, simulation_time, clamp_type, Ni=None):
+class Barrel_PC:
     ''' Hodgkin-Huxley model of a Pyramidal Cell in the rat barrel cortex.
 
         INPUT:
@@ -102,74 +102,95 @@ def simulate_barrel_PC(inj_input, simulation_time, clamp_type, Ni=None):
         transfer in inhibitory and excitatory neurons of rat barrel cortex, but shows no clear
         influence on neuronal parameters. (Unpublished bachelor's thesis)
     '''
-
-    # Determine the simulation
-    if clamp_type == 'current':
-        eqs_input = '''I_inj = inj_input(t) : amp'''
-        tracking = ['v', 'I_inj']
-
-    elif clamp_type =='dynamic':
-        g_exc, g_inh = inj_input
-        eqs_input = '''I_exc = g_exc(t) * (0*mV - v) : amp
-                 I_inh = g_inh(t) * (-75*mV - v) : amp
-                 I_inj = I_exc + I_inh : amp'''
-        tracking = ['v', 'I_inj']
-
-    # Neuron parameters
-    ## Pick a random set of parameters
-    parameters = np.loadtxt('parameters/PC_parameters.csv', delimiter=',')
-    if Ni == None:
-        Ni = np.random.randint(np.shape(parameters)[1])
+    def __init__(self, inj_input, simulation_time, clamp_type, Ni=None):
+        self.inj_input = inj_input
+        self.simulation_time = simulation_time
+        self.clamp_type = clamp_type
+        self.Ni = Ni
+        self.make_model()
     
-    ## Initiate parameters
-    area = 20000*b2.umetre**2
-    Cm = parameters[2][Ni]*b2.farad/area * b2.cm**2 
-    gL = parameters[0][Ni]*b2.siemens/area * b2.cm**2 
-    gNa = parameters[3][Ni]*b2.siemens/area * b2.cm**2 
-    gK = parameters[1][Ni]*b2.siemens/area * b2.cm**2 
-    EL = -65*b2.mV
-    ENa = 50*b2.mV
-    EK = -90*b2.mV
-    k_m = parameters[4][Ni]*b2.volt
-    k_h = parameters[5][Ni]*b2.volt
-    Vh_h = parameters[6][Ni]*b2.volt
-    VT = -63*b2.mV
-    
-    # Model the neuron with differential equations
-    eqs = '''
-        Vh_m = 3.583881 * k_m - 53.294454*mV : volt
-        m = 1 / (1 + exp(-(v - Vh_m) / k_m)) : 1
-        h = 1 / (1 + exp((v - Vh_h) / k_h)) : 1
+    def make_model(self):
+        # Determine the simulation
+        inj_input = self.inj_input
+        if self.clamp_type == 'current':
+            eqs_input = '''I_inj = inj_input(t) : amp'''
+            tracking = ['v', 'I_inj']
 
-        alpha_n = (0.032 * 5. / exprel((15. -v/mV + VT/mV) / 5.))/ms : Hz
-        beta_n = (0.5 * exp((10. - v/mV + VT/mV) / 40.))/ms : Hz
-        dn/dt = alpha_n * (1 - n) - beta_n * n : 1
+        elif self.clamp_type =='dynamic':
+            g_exc, g_inh = inj_input
+            eqs_input = '''I_exc = g_exc(t) * (0*mV - v) : amp
+                    I_inh = g_inh(t) * (-75*mV - v) : amp
+                    I_inj = I_exc + I_inh : amp'''
+            tracking = ['v', 'I_inj']
+        
+        # Model the neuron with differential equations
+        eqs = '''
+            Vh_m = 3.583881 * k_m - 53.294454*mV : volt
+            m = 1 / (1 + exp(-(v - Vh_m) / k_m)) : 1
+            h = 1 / (1 + exp((v - Vh_h) / k_h)) : 1
 
-        I_leak = gL * (v - EL) : amp
-        I_Na = gNa * m**3 * h * (v - ENa) : amp
-        I_K = gK * n**4 * (v - EK) : amp
+            alpha_n = (0.032 * 5. / exprel((15. -v/mV + VT/mV) / 5.))/ms : Hz
+            beta_n = (0.5 * exp((10. - v/mV + VT/mV) / 40.))/ms : Hz
+            dn/dt = alpha_n * (1 - n) - beta_n * n : 1
 
-        dv/dt = (-(I_leak + I_Na + I_K) + I_inj) / Cm : volt
-        '''    
+            I_leak = gL * (v - EL) : amp
+            I_Na = gNa * m**3 * h * (v - ENa) : amp
+            I_K = gK * n**4 * (v - EK) : amp
 
-    # Neuron & parameter initialization
-    neuron = b2.NeuronGroup(1, model=eqs+eqs_input, method='exponential_euler',
-                        threshold ='m > 0.5', refractory=2*b2.ms, reset=None, dt=0.5*b2.ms)
-    neuron.v = -65*b2.mV
+            dv/dt = (-(I_leak + I_Na + I_K) + I_inj) / Cm : volt
+            '''    
 
-    # Track the parameters during simulation
-    M = b2.StateMonitor(neuron, tracking, record=True)
-    S = b2.SpikeMonitor(neuron, record=True)
+        # Neuron & parameter initialization
+        neuron = b2.NeuronGroup(1, model=eqs+eqs_input, method='exponential_euler',
+                            threshold ='m > 0.5', refractory=2*b2.ms, reset=None, dt=0.5*b2.ms)
+        neuron.v = -65*b2.mV
 
-    # Run the simulation
-    net = b2.Network(neuron)
-    net.add(M, S)
-    net.run(simulation_time, report='text')
+        # Track the parameters during simulation
+        self.M = b2.StateMonitor(neuron, tracking, record=True)
+        self.S = b2.SpikeMonitor(neuron, record=True)
+        self.neuron = neuron
 
-    return M, S
+        net = b2.Network(neuron)
+        net.add(self.M, self.S)
+        self.network = net
+        
+    def store(self):
+        self.network.store()
+
+    def restore(self):
+        self.network.restore()
+
+    def run(self, Ni):
+        # Neuron parameters
+        ## Pick a random set of parameters
+        parameters = np.loadtxt('parameters/PC_parameters.csv', delimiter=',')
+        if self.Ni == None:
+            Ni = np.random.randint(np.shape(parameters)[1])
+
+        inj_input = self.inj_input
+        if self.clamp_type =='dynamic':
+            g_exc, g_inh = inj_input
+
+        ## Initiate parameters
+        area = 20000*b2.umetre**2
+        Cm = parameters[2][Ni]*b2.farad/area * b2.cm**2 
+        gL = parameters[0][Ni]*b2.siemens/area * b2.cm**2 
+        gNa = parameters[3][Ni]*b2.siemens/area * b2.cm**2 
+        gK = parameters[1][Ni]*b2.siemens/area * b2.cm**2 
+        EL = -65*b2.mV
+        ENa = 50*b2.mV
+        EK = -90*b2.mV
+        k_m = parameters[4][Ni]*b2.volt
+        k_h = parameters[5][Ni]*b2.volt
+        Vh_h = parameters[6][Ni]*b2.volt
+        VT = -63*b2.mV
+
+        simulation_time = self.simulation_time
+        self.network.run(simulation_time, report='text')
+        return self.M, self.S
 
 
-def simulate_barrel_IN(inj_input, simulation_time, clamp_type, Ni=None):
+class Barrel_IN:
     ''' Hodgkin-Huxley model of an Inter neuron in the rat barrel cortex.
 
         INPUT:
@@ -188,68 +209,90 @@ def simulate_barrel_IN(inj_input, simulation_time, clamp_type, Ni=None):
         transfer in inhibitory and excitatory neurons of rat barrel cortex, but shows no clear
         influence on neuronal parameters. (Unpublished bachelor's thesis)
     '''
-
-    # Determine the simulation
-    if clamp_type == 'current':
-        eqs_input = '''I_inj = inj_input(t) : amp'''
-        tracking = ['v', 'I_inj']
-
-    elif clamp_type =='dynamic':
-        g_exc, g_inh = inj_input
-        eqs_input = '''I_exc = g_exc(t) * (0*mV - v) : amp
-                 I_inh = g_inh(t) * (-75*mV - v) : amp
-                 I_inj = I_exc + I_inh : amp'''
-        tracking = ['v', 'I_inj']
-
-    # Neuron parameters
-    ## Pick a random set of parameters
-    parameters = np.loadtxt('parameters/IN_parameters.csv', delimiter=',')
-    if Ni == None:
-        Ni = np.random.randint(np.shape(parameters)[1])
+    def __init__(self, inj_input, simulation_time, clamp_type, Ni=None):
+        self.inj_input = inj_input
+        self.simulation_time = simulation_time
+        self.clamp_type = clamp_type
+        self.Ni = Ni
+        self.make_model()
     
-    ## Initiate parameters
-    area = 20000*b2.umetre**2
-    Cm = parameters[2][Ni]*b2.farad/area * b2.cm**2 
-    gL = parameters[0][Ni]*b2.siemens/area * b2.cm**2 
-    gNa = parameters[3][Ni]*b2.siemens/area * b2.cm**2 
-    gK = parameters[1][Ni]*b2.siemens/area * b2.cm**2 
-    EL = -65*b2.mV
-    ENa = 50*b2.mV
-    EK = -90*b2.mV
-    k_m = parameters[4][Ni]*b2.volt
-    k_h = parameters[5][Ni]*b2.volt
-    Vh_h = parameters[6][Ni]*b2.volt
-    VT = -63*b2.mV
-    
-    # Model the neuron with differential equations
-    eqs = '''
-        Vh_m = 3.583881 * k_m - 53.294454*mV : volt
-        m = 1 / (1 + exp(-(v - Vh_m) / k_m)) : 1
-        h = 1 / (1 + exp((v - Vh_h) / k_h)) : 1
+    def make_model(self):
+        # Determine the simulation
+        inj_input = self.inj_input
+        if self.clamp_type == 'current':
+            eqs_input = '''I_inj = inj_input(t) : amp'''
+            tracking = ['v', 'I_inj']
 
-        alpha_n = (0.032 * 5. / exprel((15. -v/mV + VT/mV) / 5.))/ms : Hz
-        beta_n = (0.5 * exp((10. - v/mV + VT/mV) / 40.))/ms : Hz
-        dn/dt = alpha_n * (1 - n) - beta_n * n : 1
+        elif self.clamp_type =='dynamic':
+            g_exc, g_inh = inj_input
+            eqs_input = '''I_exc = g_exc(t) * (0*mV - v) : amp
+                    I_inh = g_inh(t) * (-75*mV - v) : amp
+                    I_inj = I_exc + I_inh : amp'''
+            tracking = ['v', 'I_inj']
+        
+        # Model the neuron with differential equations
+        eqs = '''
+            Vh_m = 3.583881 * k_m - 53.294454*mV : volt
+            m = 1 / (1 + exp(-(v - Vh_m) / k_m)) : 1
+            h = 1 / (1 + exp((v - Vh_h) / k_h)) : 1
 
-        I_leak = gL * (v - EL) : amp
-        I_Na = gNa * m**3 * h * (v - ENa) : amp
-        I_K = gK * n**4 * (v - EK) : amp
+            alpha_n = (0.032 * 5. / exprel((15. -v/mV + VT/mV) / 5.))/ms : Hz
+            beta_n = (0.5 * exp((10. - v/mV + VT/mV) / 40.))/ms : Hz
+            dn/dt = alpha_n * (1 - n) - beta_n * n : 1
 
-        dv/dt = (-(I_leak + I_Na + I_K) + I_inj) / Cm : volt
-        '''    
+            I_leak = gL * (v - EL) : amp
+            I_Na = gNa * m**3 * h * (v - ENa) : amp
+            I_K = gK * n**4 * (v - EK) : amp
 
-    # Neuron & parameter initialization
-    neuron = b2.NeuronGroup(1, model=eqs+eqs_input, method='exponential_euler',
-                        threshold ='m > 0.5', refractory=2*b2.ms, reset=None, dt=0.5*b2.ms)
-    neuron.v = -65*b2.mV
+            dv/dt = (-(I_leak + I_Na + I_K) + I_inj) / Cm : volt
+            '''    
 
-    # Track the parameters during simulation
-    M = b2.StateMonitor(neuron, tracking, record=True)
-    S = b2.SpikeMonitor(neuron, record=True)
+        # Neuron & parameter initialization
+        neuron = b2.NeuronGroup(1, model=eqs+eqs_input, method='exponential_euler',
+                            threshold ='m > 0.5', refractory=2*b2.ms, reset=None, dt=0.5*b2.ms)
+        neuron.v = -65*b2.mV
 
-    # Run the simulation
-    net = b2.Network(neuron)
-    net.add(M, S)
-    net.run(simulation_time, report='text')
+        # Track the parameters during simulation
+        self.M = b2.StateMonitor(neuron, tracking, record=True)
+        self.S = b2.SpikeMonitor(neuron, record=True)
+        self.neuron = neuron
 
-    return M, S
+        net = b2.Network(neuron)
+        net.add(self.M, self.S)
+        self.network = net
+        
+    def store(self):
+        self.network.store()
+
+    def restore(self):
+        self.network.restore()
+
+    def run(self, Ni):
+        # Neuron parameters
+        ## Pick a random set of parameters
+        parameters = np.loadtxt('parameters/IN_parameters.csv', delimiter=',')
+        if self.Ni == None:
+            Ni = np.random.randint(np.shape(parameters)[1])
+
+        inj_input = self.inj_input
+        if self.clamp_type =='dynamic':
+            g_exc, g_inh = inj_input
+
+        ## Initiate parameters
+        area = 20000*b2.umetre**2
+        Cm = parameters[2][Ni]*b2.farad/area * b2.cm**2 
+        gL = parameters[0][Ni]*b2.siemens/area * b2.cm**2 
+        gNa = parameters[3][Ni]*b2.siemens/area * b2.cm**2 
+        gK = parameters[1][Ni]*b2.siemens/area * b2.cm**2 
+        EL = -65*b2.mV
+        ENa = 50*b2.mV
+        EK = -90*b2.mV
+        k_m = parameters[4][Ni]*b2.volt
+        k_h = parameters[5][Ni]*b2.volt
+        Vh_h = parameters[6][Ni]*b2.volt
+        VT = -63*b2.mV
+
+        self.network.run(self.simulation_time, report='text')
+        return self.M, self.S
+
+

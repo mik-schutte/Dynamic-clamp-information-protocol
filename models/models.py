@@ -88,7 +88,7 @@ class Barrel_PC:
 
         INPUT:
             inj_input ((Tuple of) TimedArray): Input current or conductances (g_exc, g_inh)
-            duration (float): Simulation time [milliseconds]
+            simulation_time (float): Simulation time [milliseconds]
             clamp_type (string): type of input, ['current' or 'dynamic'] default = current
             Ni (int): parameter index
 
@@ -97,31 +97,25 @@ class Barrel_PC:
             ['v', 'input' or 'conductance']
 
         The parameters used in this model have been fitted by Xenia Sterl under 
-        the supervision of Fleur Zeldenrust. Full description can be found at:
+        the supervision of Fleur Zeldenrust. Full description can be found in:
         Xenia Sterl, Fleur Zeldenrust, (2020). Dopamine modulates firing rates and information
         transfer in inhibitory and excitatory neurons of rat barrel cortex, but shows no clear
         influence on neuronal parameters. (Unpublished bachelor's thesis)
     '''
-    def __init__(self, inj_input, simulation_time, clamp_type, Ni=None):
-        self.inj_input = inj_input
-        self.simulation_time = simulation_time
+    def __init__(self, clamp_type):
         self.clamp_type = clamp_type
-        self.Ni = Ni
         self.make_model()
     
     def make_model(self):
         # Determine the simulation
-        inj_input = self.inj_input
         if self.clamp_type == 'current':
             eqs_input = '''I_inj = inj_input(t) : amp'''
-            tracking = ['v', 'I_inj']
 
         elif self.clamp_type =='dynamic':
-            g_exc, g_inh = inj_input
             eqs_input = '''I_exc = g_exc(t) * (0*mV - v) : amp
                     I_inh = g_inh(t) * (-75*mV - v) : amp
                     I_inj = I_exc + I_inh : amp'''
-            tracking = ['v', 'I_inj']
+        tracking = ['v', 'I_inj']
         
         # Model the neuron with differential equations
         eqs = '''
@@ -160,14 +154,13 @@ class Barrel_PC:
     def restore(self):
         self.network.restore()
 
-    def run(self, Ni):
+    def run(self, inj_input, simulation_time, Ni):
         # Neuron parameters
         ## Pick a random set of parameters
         parameters = np.loadtxt('parameters/PC_parameters.csv', delimiter=',')
-        if self.Ni == None:
+        if Ni == None:
             Ni = np.random.randint(np.shape(parameters)[1])
 
-        inj_input = self.inj_input
         if self.clamp_type =='dynamic':
             g_exc, g_inh = inj_input
 
@@ -185,8 +178,7 @@ class Barrel_PC:
         Vh_h = parameters[6][Ni]*b2.volt
         VT = -63*b2.mV
 
-        simulation_time = self.simulation_time
-        self.network.run(simulation_time, report='text')
+        self.network.run(simulation_time)
         return self.M, self.S
 
 
@@ -195,7 +187,7 @@ class Barrel_IN:
 
         INPUT:
             inj_input ((Tuple of) TimedArray): Input current or conductances (g_exc, g_inh)
-            duration (float): Simulation time [milliseconds]
+            simulation_time (float): Simulation time [milliseconds]
             clamp_type (string): type of input, ['current' or 'dynamic'] default = current
             Ni (int): parameter index
 
@@ -209,26 +201,20 @@ class Barrel_IN:
         transfer in inhibitory and excitatory neurons of rat barrel cortex, but shows no clear
         influence on neuronal parameters. (Unpublished bachelor's thesis)
     '''
-    def __init__(self, inj_input, simulation_time, clamp_type, Ni=None):
-        self.inj_input = inj_input
-        self.simulation_time = simulation_time
+    def __init__(self, clamp_type):
         self.clamp_type = clamp_type
-        self.Ni = Ni
         self.make_model()
     
     def make_model(self):
         # Determine the simulation
-        inj_input = self.inj_input
         if self.clamp_type == 'current':
             eqs_input = '''I_inj = inj_input(t) : amp'''
-            tracking = ['v', 'I_inj']
 
         elif self.clamp_type =='dynamic':
-            g_exc, g_inh = inj_input
             eqs_input = '''I_exc = g_exc(t) * (0*mV - v) : amp
                     I_inh = g_inh(t) * (-75*mV - v) : amp
                     I_inj = I_exc + I_inh : amp'''
-            tracking = ['v', 'I_inj']
+        tracking = ['v', 'I_inj']
         
         # Model the neuron with differential equations
         eqs = '''
@@ -267,14 +253,13 @@ class Barrel_IN:
     def restore(self):
         self.network.restore()
 
-    def run(self, Ni):
+    def run(self, inj_input, simulation_time, Ni):
         # Neuron parameters
         ## Pick a random set of parameters
         parameters = np.loadtxt('parameters/IN_parameters.csv', delimiter=',')
-        if self.Ni == None:
+        if Ni == None:
             Ni = np.random.randint(np.shape(parameters)[1])
 
-        inj_input = self.inj_input
         if self.clamp_type =='dynamic':
             g_exc, g_inh = inj_input
 
@@ -292,7 +277,7 @@ class Barrel_IN:
         Vh_h = parameters[6][Ni]*b2.volt
         VT = -63*b2.mV
 
-        self.network.run(self.simulation_time, report='text')
+        self.network.run(simulation_time)
         return self.M, self.S
 
 

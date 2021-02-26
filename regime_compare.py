@@ -40,7 +40,7 @@ dv = 0.5
 duration = 2000
 qon_qoff_type = 'balanced'
 Er_exc, Er_inh = (0, -75)
-N_runs = (61, 22) # for all pyramidal and interneuron parameters
+N_runs = 10 # for all pyramidal and interneuron parameters
 
 slow_membrane_potential, slow_inp = ([], [])
 fast_membrane_potential, fast_inp = ([], [])
@@ -48,8 +48,18 @@ slow_high_membrane_potential, slow_high_inp = ([], [])
 fast_low_membrane_potential, fast_low_inp = ([], [])
 indexlist = ['exc_LUT', 'inh_LUT', 'input_theory', 'hidden_state']
 
+slow_neuron = Barrel_PC('current')
+fast_neuron = Barrel_PC('current')
+slow_high_neuron = Barrel_PC('current')
+fast_low_neuron = Barrel_PC('current')
+slow_neuron.store()
+fast_neuron.store()
+slow_high_neuron.store()
+fast_low_neuron.store()
+    
 print('Comparing regimes')
-for i in range(10): 
+for i in range(N_runs): 
+    print('Round', i+1, 'of', N_runs)
     # Generate input
     slow_input = pd.Series(data=make_dynamic_experiments(qon_qoff_type, baseline, 
                     amplitude_scaling, regimes['slow'][0], factor_ron_roff, regimes['slow'][1],
@@ -71,15 +81,15 @@ for i in range(10):
     fast_low_input_current = scale_input_theory(fast_low_input['input_theory'], baseline, amplitude_scaling, dt)
     
     # Simulate
-    slow_neuron = Barrel_PC(slow_input_current, duration*ms, 'current')
-    fast_neuron = Barrel_PC(fast_input_current, duration*ms, 'current')
-    slow_high_neuron = Barrel_PC(slow_high_input_current, duration*ms, 'current')
-    fast_low_neuron = Barrel_PC(fast_low_input_current, duration*ms, 'current')
-
-    slow_M, slow_S = slow_neuron.run(1)
-    fast_M, fast_S = fast_neuron.run(1)
-    slow_high_M, slow_high_S = slow_high_neuron.run(1)
-    fast_low_M, fast_low_S = fast_low_neuron.run(1)
+    slow_neuron.restore()
+    fast_neuron.restore()
+    slow_high_neuron.restore()
+    fast_low_neuron.restore()
+    
+    slow_M, slow_S = slow_neuron.run(slow_input_current, duration*ms, Ni=1)
+    fast_M, fast_S = fast_neuron.run(fast_input_current, duration*ms, Ni=1)
+    slow_high_M, slow_high_S = slow_high_neuron.run(slow_high_input_current, duration*ms, Ni=1)
+    fast_low_M, fast_low_S = fast_low_neuron.run(fast_low_input_current, duration*ms, Ni=1)
 
     slow_membrane_potential = np.concatenate((slow_membrane_potential, slow_M.v[0]/mV), axis=0) 
     fast_membrane_potential= np.concatenate((fast_membrane_potential, fast_M.v[0]/mV), axis=0)
@@ -122,11 +132,11 @@ plt.legend()
 plt.show()
 
 # Save
-np.save(f'results/saved/regime_compare/slow.npy', 
-            {'potential' : slow_membrane_potential, 'input' : slow_inp})
-np.save(f'results/saved/regime_compare/slow_high.npy', 
-            {'potential' : slow_high_membrane_potential, 'input' : slow_high_inp})            
-np.save(f'results/saved/regime_compare/fast.npy', 
-            {'potential' : fast_membrane_potential, 'input' : fast_inp})
-np.save(f'results/saved/regime_compare/fast_low.npy', 
-            {'potential' : fast_low_membrane_potential, 'input' : fast_low_inp})
+# np.save(f'results/saved/regime_compare/slow.npy', 
+#             {'potential' : slow_membrane_potential, 'input' : slow_inp})
+# np.save(f'results/saved/regime_compare/slow_high.npy', 
+#             {'potential' : slow_high_membrane_potential, 'input' : slow_high_inp})            
+# np.save(f'results/saved/regime_compare/fast.npy', 
+#             {'potential' : fast_membrane_potential, 'input' : fast_inp})
+# np.save(f'results/saved/regime_compare/fast_low.npy', 
+#             {'potential' : fast_low_membrane_potential, 'input' : fast_low_inp})

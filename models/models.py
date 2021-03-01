@@ -102,8 +102,9 @@ class Barrel_PC:
         transfer in inhibitory and excitatory neurons of rat barrel cortex, but shows no clear
         influence on neuronal parameters. (Unpublished bachelor's thesis)
     '''
-    def __init__(self, clamp_type):
+    def __init__(self, clamp_type, dt):
         self.clamp_type = clamp_type
+        self.dt = dt
         self.make_model()
     
     def make_model(self):
@@ -136,7 +137,7 @@ class Barrel_PC:
 
         # Neuron & parameter initialization
         neuron = b2.NeuronGroup(1, model=eqs+eqs_input, method='exponential_euler',
-                            threshold ='m > 0.5', refractory=2*b2.ms, reset=None, dt=0.5*b2.ms)
+                            threshold ='m > 0.5', refractory=2*b2.ms, reset=None, dt=self.dt*b2.ms)
         neuron.v = -65*b2.mV
 
         # Track the parameters during simulation
@@ -201,8 +202,9 @@ class Barrel_IN:
         transfer in inhibitory and excitatory neurons of rat barrel cortex, but shows no clear
         influence on neuronal parameters. (Unpublished bachelor's thesis)
     '''
-    def __init__(self, clamp_type):
+    def __init__(self, clamp_type, dt):
         self.clamp_type = clamp_type
+        self.dt = dt
         self.make_model()
     
     def make_model(self):
@@ -235,7 +237,7 @@ class Barrel_IN:
 
         # Neuron & parameter initialization
         neuron = b2.NeuronGroup(1, model=eqs+eqs_input, method='exponential_euler',
-                            threshold ='m > 0.5', refractory=2*b2.ms, reset=None, dt=0.5*b2.ms)
+                            threshold ='m > 0.5', refractory=2*b2.ms, reset=None, dt=self.dt*b2.ms)
         neuron.v = -65*b2.mV
 
         # Track the parameters during simulation

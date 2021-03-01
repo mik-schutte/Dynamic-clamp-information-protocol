@@ -3,14 +3,18 @@
     
     Compare different regimes, as show in table 1 of Zeldenrust et al., (2017)
 '''
+import os,sys,inspect
+current_dir = os.path.dirname(os.path.abspath(inspect.getfile(inspect.currentframe())))
+parent_dir = os.path.dirname(current_dir)
+sys.path.insert(0, parent_dir)
 
 import numpy as np
 import pandas as pd
 import scipy.stats as stats
 from brian2 import *
-from code.make_dynamic_experiments import make_dynamic_experiments
+from foundations.make_dynamic_experiments import make_dynamic_experiments
+from foundations.MI_calculation import analyze_exp
 from models.models import Barrel_PC
-from code.MI_calculation import analyze_exp
 from visualization.plotter import plot_currentclamp
 
 

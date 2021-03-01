@@ -4,8 +4,8 @@
     File containing the functions used in make_dynamic_experiments and main(dynamic).
 '''
 import numpy as np
-import code.input as Input
 import matplotlib.pyplot as plt
+from foundations.input import Input
 
 def get_g0(v_rest, weights, Er_exc, Er_inh):
     ''' Creates a dictionary containing the 'base' conductance of each neuron

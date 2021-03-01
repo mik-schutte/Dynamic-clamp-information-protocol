@@ -1,10 +1,14 @@
+import os,sys,inspect
+current_dir = os.path.dirname(os.path.abspath(inspect.getfile(inspect.currentframe())))
+parent_dir = os.path.dirname(current_dir)
+sys.path.insert(0, parent_dir)
+
 import numpy as np
 from brian2 import *
-from code.make_dynamic_experiments import make_dynamic_experiments
+from foundations.make_dynamic_experiments import make_dynamic_experiments
 from models.models import *
 from visualization.plotter import plot_currentclamp, plot_dynamicclamp, plot_compare
-from code.MI_calculation import analyze_exp
-
+from foundations.MI_calculation import analyze_exp
 from models.models import Barrel_PC
 
 

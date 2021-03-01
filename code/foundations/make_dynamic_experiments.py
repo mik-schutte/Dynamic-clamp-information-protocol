@@ -13,8 +13,8 @@
 '''
 import numpy as np
 import matplotlib.pyplot as plt
-from code.input import Input
-from code.dynamic_clamp import get_g0, get_input_LUT 
+from foundations.dynamic_clamp import get_g0, get_input_LUT 
+from foundations.input import Input
 
 def make_dynamic_experiments(qon_qoff_type, baseline, amplitude_scaling, tau, factor_ron_roff, mean_firing_rate, sampling_rate, duration, dv, seed=None):
     ''' Make input current look up table (LUT) based on a artificial network responding

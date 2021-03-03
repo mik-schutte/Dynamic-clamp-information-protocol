@@ -24,7 +24,7 @@ def make_spiketrain(S, hiddenstate, dt):
 ## Generate input and hiddenstate
 # Set parameters
 baseline = 0  
-amplitude_scaling = 25
+amplitude_scaling = 10
 dynamic_scaling = 8
 theta = 0     
 tau = 50               

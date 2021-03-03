@@ -8,7 +8,7 @@ from brian2 import *
 def scale_input_theory(input_theory, baseline, amplitude_scaling, dt):
     ''' docstring
     '''
-    scaled_input = (baseline + input_theory * amplitude_scaling)*namp
+    scaled_input = (baseline + input_theory * amplitude_scaling)*uamp
     inject_input = TimedArray(scaled_input, dt=dt*ms)
     return inject_input
 

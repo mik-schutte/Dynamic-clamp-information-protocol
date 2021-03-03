@@ -18,7 +18,7 @@ import scipy.stats as stats
 
 # Set parameters
 baseline = 0  
-amplitude_scaling = 1500
+amplitude_scaling = 10
 dynamic_scaling = 8
 theta = 0     
 tau = 50               

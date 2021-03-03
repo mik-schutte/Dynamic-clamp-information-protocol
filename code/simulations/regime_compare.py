@@ -30,7 +30,7 @@ regimes = {'slow' : (50, (0.5)/1000), 'fast' : (10, (2.5)/1000),
 
 # Set parameters
 baseline = 0  
-amplitude_scaling = 1500
+amplitude_scaling = 10
 dynamic_scaling = 8
 theta = 0     
 tau = 50               

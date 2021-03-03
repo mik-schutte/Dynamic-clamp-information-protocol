@@ -39,12 +39,12 @@ ron = 1./(tau*(1+factor_ron_roff))
 roff = factor_ron_roff*ron
 mean_firing_rate = (0.5)/1000 
 sampling_rate = 2      
-dt = 1/sampling_rate #0.5 ms so that the barrel models work
+dt = 1/sampling_rate 
 dv = 0.5
 duration = 2000
 qon_qoff_type = 'balanced'
 Er_exc, Er_inh = (0, -75)
-N_runs = 10 # for all pyramidal and interneuron parameters
+N_runs = 10 
 
 slow_membrane_potential, slow_inp = ([], [])
 fast_membrane_potential, fast_inp = ([], [])
@@ -52,6 +52,7 @@ slow_high_membrane_potential, slow_high_inp = ([], [])
 fast_low_membrane_potential, fast_low_inp = ([], [])
 indexlist = ['exc_LUT', 'inh_LUT', 'input_theory', 'hidden_state']
 
+# Initialize neurons for simulation
 slow_neuron = Barrel_PC('current', dt=dt)
 fast_neuron = Barrel_PC('current', dt=dt)
 slow_high_neuron = Barrel_PC('current', dt=dt)

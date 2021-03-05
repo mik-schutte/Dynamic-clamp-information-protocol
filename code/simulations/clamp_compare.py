@@ -9,6 +9,7 @@ from foundations.make_dynamic_experiments import make_dynamic_experiments
 from models.models import *
 from visualization.plotter import plot_currentclamp, plot_dynamicclamp, plot_compare
 from foundations.MI_calculation import analyze_exp
+from foundations.helpers import scale_dynamic_input, scale_input_theory
 from models.models import Barrel_PC
 
 
@@ -42,20 +43,15 @@ N_runs = (61, 22) # for all pyramidal and interneuron parameters
 
 # Generate input
 print('Generating...')
-[exc_LUT, inh_LUT, input_theory, hidden_state] = make_dynamic_experiments(qon_qoff_type, baseline, amplitude_scaling, tau, factor_ron_roff, mean_firing_rate, sampling_rate, duration, dv)
+[g_exc, g_inh, input_theory, hidden_state] = make_dynamic_experiments(qon_qoff_type, baseline, amplitude_scaling, tau, factor_ron_roff, mean_firing_rate, sampling_rate, duration, dv)
 print('Input and hiddenstate generate!')
 
 ## Create and scale input to a Brian2 TimedArray
 # Currentclamp
-input_currentx = baseline + input_theory*amplitude_scaling
-input_current = input_currentx*uamp
-input_current = TimedArray(input_current, dt=dt*ms)
+input_current = scale_input_theory(input_theory, baseline, amplitude_scaling, dt)
 
 # Dynamicclamp
-g_exc = abs(exc_LUT[-65] / (-65 - Er_exc))*mS * dynamic_scaling
-g_inh = abs(inh_LUT[-65] / (-65 - Er_inh))*mS 
-g_exc = TimedArray(g_exc, dt=dt*ms)
-g_inh = TimedArray(g_inh, dt=dt*ms)
+g_exc, g_inh = scale_dynamic_input(g_exc, g_inh, dynamic_scaling, dt)
 
 ## Simulate
 # Pyramidal cells

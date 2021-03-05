@@ -119,14 +119,25 @@ def plot_clampcell_MI(MI_data):
     plt.show()
 
 
-def plot_regime_compare(pathtofolder):
-    #Load
-    regimes = ['slow.npy', 'fast.npy', 'slow_high.npy', 'fast_low.npy']
-   
-    slow = np.load('results/saved/regime_compare/'+regimes[0], allow_pickle=True).item()
-    fast = np.load('results/saved/regime_compare/'+regimes[1], allow_pickle=True).item()
-    slow_high = np.load('results/saved/regime_compare/'+regimes[2], allow_pickle=True).item()
-    fast_low = np.load('results/saved/regime_compare/'+regimes[3], allow_pickle=True).item()
+def plot_regime_compare(pathorlist):    
+    ''' Plots the injected current and membrane potential 
+        of different hidden state regimes.
+
+        pathorlist : path to the scaling_compare folder or [slow, fast, slow_high, fast_low]
+    '''
+    # Check input
+    if isinstance(pathorlist, str):
+        regimes = ['slow.npy', 'fast.npy', 'slow_high.npy', 'fast_low.npy']
+        slow = np.load('results/saved/regime_compare/'+regimes[0], allow_pickle=True).item()
+        fast = np.load('results/saved/regime_compare/'+regimes[1], allow_pickle=True).item()
+        slow_high = np.load('results/saved/regime_compare/'+regimes[2], allow_pickle=True).item()
+        fast_low = np.load('results/saved/regime_compare/'+regimes[3], allow_pickle=True).item()
+
+    elif isinstance(pathorlist, list) or isinstance(pathorlist, np.array):
+        slow, fast, slow_high, fast_low = pathorlist
+    
+    else: 
+        raise AssertionError('Input should be a path to the saved .npy files or [PC_results, IN_results].')
 
     # Plot
     fig, axs = plt.subplots(ncols=2, figsize=(10, 10))

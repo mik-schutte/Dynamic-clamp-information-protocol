@@ -13,7 +13,7 @@
 '''
 import numpy as np
 import matplotlib.pyplot as plt
-from foundations.dynamic_clamp import get_g0, get_input_LUT 
+from foundations.dynamic_clamp import get_g0
 from foundations.input import Input
 
 def make_dynamic_experiments(qon_qoff_type, baseline, amplitude_scaling, tau, factor_ron_roff, mean_firing_rate, sampling_rate, duration, dv, seed=None):
@@ -92,9 +92,6 @@ def make_dynamic_experiments(qon_qoff_type, baseline, amplitude_scaling, tau, fa
     #Generate input_current for comparison
     input_theory = input_bayes.markov_input()
 
-    exc_LUT = get_input_LUT(g_exc, dv, Er_exc)
-    inh_LUT = get_input_LUT(g_inh, dv, Er_inh)
-
     # #SanityCheck for input (Vm=-40) and hiddenstate
     # fig, axs = plt.subplots(2, figsize=(12,12))
     # fig.suptitle('Dynamic Clamp at -40')
@@ -112,4 +109,4 @@ def make_dynamic_experiments(qon_qoff_type, baseline, amplitude_scaling, tau, fa
     
     # plt.show()
 
-    return [exc_LUT, inh_LUT, input_theory, input_bayes.x]
+    return [g_exc, g_inh, input_theory, input_bayes.x]

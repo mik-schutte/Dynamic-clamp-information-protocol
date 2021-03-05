@@ -12,11 +12,11 @@ def scale_input_theory(input_theory, baseline, amplitude_scaling, dt):
     inject_input = TimedArray(scaled_input, dt=dt*ms)
     return inject_input
 
-def scale_dynamic_input(exc_LUT, inh_LUT, Er_exc, Er_inh, scale_exc_inh, dt):
+def scale_dynamic_input(g_exc, g_inh, scale_exc_inh, dt):
     ''' docstring
     '''
-    g_exc = abs(exc_LUT[-65] / (-65 - Er_exc))*mS * scale_exc_inh
-    g_inh = abs(inh_LUT[-65] / (-65 - Er_inh))*mS * scale_exc_inh
+    g_exc = g_exc*mS * scale_exc_inh
+    g_inh = g_inh*mS * scale_exc_inh
     g_exc = TimedArray(g_exc, dt=dt*ms)
     g_inh = TimedArray(g_inh, dt=dt*ms)
     return (g_exc, g_inh)

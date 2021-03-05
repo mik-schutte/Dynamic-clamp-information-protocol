@@ -14,14 +14,9 @@ import scipy.stats as stats
 from brian2 import *
 from foundations.make_dynamic_experiments import make_dynamic_experiments
 from foundations.MI_calculation import analyze_exp
+from foundations.helpers import scale_input_theory
 from models.models import Barrel_PC
-from visualization.plotter import plot_currentclamp
-
-
-def scale_input_theory(input_theory, baseline, amplitude_scaling, dt):
-    scaled_input = (baseline + input_theory * amplitude_scaling)*namp
-    inject_input = TimedArray(scaled_input, dt=dt*ms)
-    return inject_input
+from visualization.plotter import plot_currentclamp, plot_regime_compare
 
 # Define different regimes
 ## Dict {regime : (tau, uq)}
@@ -50,7 +45,7 @@ slow_membrane_potential, slow_inp = ([], [])
 fast_membrane_potential, fast_inp = ([], [])
 slow_high_membrane_potential, slow_high_inp = ([], [])
 fast_low_membrane_potential, fast_low_inp = ([], [])
-indexlist = ['exc_LUT', 'inh_LUT', 'input_theory', 'hidden_state']
+indexlist = ['g_exc', 'g_inh', 'input_theory', 'hidden_state']
 
 # Initialize neurons for simulation
 slow_neuron = Barrel_PC('current', dt=dt)
@@ -112,36 +107,16 @@ for i in range(N_runs):
     # plot_currentclamp(fast_M, fast_input['hidden_state'], dt)
     # plot_currentclamp(fast_low_M, fast_low_input['hidden_state'], dt)
 
+slow = {'potential' : slow_membrane_potential, 'input' : slow_inp}
+fast = {'potential' : fast_membrane_potential, 'input' : fast_inp}
+slow_high = {'potential' : slow_high_membrane_potential, 'input' : slow_high_inp}
+fast_low = {'potential' : fast_low_membrane_potential, 'input' : fast_low_inp}
+
 # Plot
-def plot_special(axes, array, col=None, label=None):
-    x = np.linspace(np.min(array), np.max(array))
-    density = stats.gaussian_kde(array)
-    axes.plot(x, density(x), color=col, label=label)
-    return
-
-fig, axs = plt.subplots(ncols=2, figsize=(10, 10))
-plot_special(axs[0], slow_inp, col='blue', label='Slow')
-plot_special(axs[0], fast_inp, col='red', label='Fast')
-plot_special(axs[0], slow_high_inp, col='green', label='Slow High')
-plot_special(axs[0], fast_low_inp, col='purple', label='Fast Low')
-axs[0].set(xlabel='Input Current [nA]')
-axs[0].title.set_text('Input Current distribution')
-
-plot_special(axs[1], slow_membrane_potential, col='blue', label='Slow')
-plot_special(axs[1], fast_membrane_potential, col='red', label='Fast')
-plot_special(axs[1], slow_high_membrane_potential, col='green', label='Slow High')
-plot_special(axs[1], fast_low_membrane_potential, col='purple', label='Fast Low')
-axs[1].set(xlabel='Membrane Potential [mV]')
-axs[1].title.set_text('Membrane Potential distribution')
-plt.legend()
-plt.show()
+plot_regime_compare([slow, fast, slow_high, fast_low])
 
 # Save
-# np.save(f'results/saved/regime_compare/slow.npy', 
-#             {'potential' : slow_membrane_potential, 'input' : slow_inp})
-# np.save(f'results/saved/regime_compare/slow_high.npy', 
-#             {'potential' : slow_high_membrane_potential, 'input' : slow_high_inp})            
-# np.save(f'results/saved/regime_compare/fast.npy', 
-#             {'potential' : fast_membrane_potential, 'input' : fast_inp})
-# np.save(f'results/saved/regime_compare/fast_low.npy', 
-#             {'potential' : fast_low_membrane_potential, 'input' : fast_low_inp})
+# np.save(f'results/saved/regime_compare/slow.npy', slow) 
+# np.save(f'results/saved/regime_compare/slow_high.npy', slow_high)  
+# np.save(f'results/saved/regime_compare/fast.npy', fast)
+# np.save(f'results/saved/regime_compare/fast_low.npy', fast_low)

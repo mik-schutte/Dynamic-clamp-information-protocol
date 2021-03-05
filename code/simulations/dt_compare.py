@@ -42,7 +42,7 @@ print('Running simulation...')
 for _ in range(N_runs):
     for sampling_rate in sampling_array:
         # Generate input
-        [exc_LUT, inh_LUT, input_theory, hidden_state] = make_dynamic_experiments(qon_qoff_type, baseline, amplitude_scaling, tau, factor_ron_roff, mean_firing_rate, sampling_rate, duration, dv)
+        [g_exc, g_inh, input_theory, hidden_state] = make_dynamic_experiments(qon_qoff_type, baseline, amplitude_scaling, tau, factor_ron_roff, mean_firing_rate, sampling_rate, duration, dv)
 
         # Scale input
         inj_input = scale_input_theory(input_theory, baseline, amplitude_scaling, 1/sampling_rate)

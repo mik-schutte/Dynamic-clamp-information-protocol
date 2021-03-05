@@ -187,3 +187,49 @@ def plot_dt_compare(pathorlist):
     axs[1, 1].title.set_text('Interneurons')
     plt.legend()
     plt.show()
+
+
+def plot_scaling_compare(pathorlist):
+    ''' Plots the injected current, membrane potential and frequency
+        of different dynamic scaling scales.
+
+        pathorlist : path to the scaling_compare folder or [current_dict, dynamic_dict]
+    '''
+    # Check input
+    if isinstance(pathorlist, str):
+        current_dict = np.load(pathorlist + 'current_dict.npy', allow_pickle=True).item()
+        dynamic_dict = np.load(pathorlist + 'dynamic_dict.npy', allow_pickle=True).item()
+
+    elif isinstance(pathorlist, list) or isinstance(pathorlist, np.array):
+        current_dict, dynamic_dict = pathorlist
+    
+    else: 
+        raise AssertionError('Input should be a path to the saved .npy files or [PC_results, IN_results].')
+
+
+    scale_array = dynamic_dict['I'].keys()
+    N = len(scale_array)
+    x = np.arange(N+1)
+
+    fig, axs = plt.subplots(ncols=3, figsize=(10,10))
+    plot_special(axs[0], current_dict['I'], label='current')
+    plot_special(axs[1], current_dict['Vm'], label='current')
+    axs[2].bar(x[0], np.mean(current_dict['f']), label='current', yerr=np.std(current_dict['f']/N),
+                capsize=4)
+
+    for idx, scale in enumerate(scale_array):
+        plot_special(axs[0], dynamic_dict['I'][scale], label='dynamic' + str( scale))
+        plot_special(axs[1], dynamic_dict['Vm'][scale], label='dynamic' + str( scale))
+        axs[2].bar(x[idx+1], height=np.mean(dynamic_dict['f'][scale]), label='dynamic' + str( scale), 
+        yerr=np.std(dynamic_dict['f'][scale])/N)
+        
+        #plot_special(axs[2], dynamic_dict['fdiff'][scale], label='dynamic' + str( scale))
+    axs[0].set(xlabel='Input Current[uA]', ylabel='density')
+    axs[0].title.set_text('Injected current')
+    axs[1].set(xlabel='Membrane potential [mV]')
+    axs[1].title.set_text('Membrane potential')
+    axs[2].set(xticks=[], ylabel='Frequency [Hz]')
+    axs[2].title.set_text('Firing frequency')
+    fig.suptitle('Dynamic scaling effect on')
+    plt.legend()
+    plt.show()

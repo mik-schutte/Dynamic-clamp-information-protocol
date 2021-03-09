@@ -67,8 +67,8 @@ for i in range(N_runs[0]):
     # Clamps
     current_barrel_PC.restore()
     dynamic_barrel_PC.restore()
-    M_current, S_current = current_barrel_PC.run(input_current, duration*ms, Ni=i)
-    M_dynamic, S_dynamic = dynamic_barrel_PC.run((g_exc, g_inh), duration*ms, Ni=i)
+    M_current, S_current = current_barrel_PC.run(input_current, duration*ms, i, Er_exc, Er_inh)
+    M_dynamic, S_dynamic = dynamic_barrel_PC.run((g_exc, g_inh), duration*ms, i, Er_exc, Er_inh)
     
     # Create spiketrain
     spiketrain_current = make_spiketrain(S_current, hidden_state, dt)
@@ -97,8 +97,8 @@ for i in range(N_runs[1]):
     # Clamps
     current_barrel_IN.restore()
     dynamic_barrel_IN.restore()
-    M_current, S_current = current_barrel_IN.run(input_current, duration*ms, i)
-    M_dynamic, S_dynamic = dynamic_barrel_IN.run((g_exc, g_inh), duration*ms, i)
+    M_current, S_current = current_barrel_IN.run(input_current, duration*ms, i, Er_exc, Er_inh)
+    M_dynamic, S_dynamic = dynamic_barrel_IN.run((g_exc, g_inh), duration*ms, i, Er_exc, Er_inh)
 
     # Create spiketrain
     spiketrain_current = make_spiketrain(S_current, hidden_state, dt)

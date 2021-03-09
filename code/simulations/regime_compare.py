@@ -86,10 +86,10 @@ for i in range(N_runs):
     slow_high_neuron.restore()
     fast_low_neuron.restore()
     
-    slow_M, slow_S = slow_neuron.run(slow_input_current, duration*ms, Ni=1)
-    fast_M, fast_S = fast_neuron.run(fast_input_current, duration*ms, Ni=1)
-    slow_high_M, slow_high_S = slow_high_neuron.run(slow_high_input_current, duration*ms, Ni=1)
-    fast_low_M, fast_low_S = fast_low_neuron.run(fast_low_input_current, duration*ms, Ni=1)
+    slow_M, slow_S = slow_neuron.run(slow_input_current, duration*ms, Ni=1, Er_exc, Er_inh)
+    fast_M, fast_S = fast_neuron.run(fast_input_current, duration*ms, Ni=1, Er_exc, Er_inh)
+    slow_high_M, slow_high_S = slow_high_neuron.run(slow_high_input_current, duration*ms, Ni=1, Er_exc, Er_inh)
+    fast_low_M, fast_low_S = fast_low_neuron.run(fast_low_input_current, duration*ms, Ni=1, Er_exc, Er_inh)
 
     slow_membrane_potential = np.concatenate((slow_membrane_potential, slow_M.v[0]/mV), axis=0) 
     fast_membrane_potential= np.concatenate((fast_membrane_potential, fast_M.v[0]/mV), axis=0)

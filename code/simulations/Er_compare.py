@@ -34,7 +34,7 @@ qon_qoff_type = 'balanced'
 Er_exc, Er_inh = (0, -75)
 N_runs = 5 # for all pyramidal and interneuron parameters
 
-Er_inh_array = [-50, -75, -80, -90, -100]
+Er_inh_array = [-75, -80, -90, -100, -200, -300]
 scaled_inputs = dict.fromkeys(Er_inh_array, [])
 scaled_Vm = dict.fromkeys(Er_inh_array, [])
 scaled_freq = dict.fromkeys(Er_inh_array, [])
@@ -74,9 +74,9 @@ for i in range(N_runs):
         dynamic_M, dynamic_S = dynamic_neuron.run(dynamic_input, duration*ms, 1, Er_exc, Er_inh)
 
         # Sanity Check
-        if i == 0:
-            plot_dynamicclamp(dynamic_M, dynamic_input[0], dynamic_input[1], hidden_state, dt=dt)
-            plot_currentclamp(current_M, hidden_state, dt)
+        # if i == 0:
+        #     plot_dynamicclamp(dynamic_M, dynamic_input[0], dynamic_input[1], hidden_state, dt=dt)
+        #     plot_currentclamp(current_M, hidden_state, dt)
         
         scaled_inputs[Er_inh] = np.concatenate((scaled_inputs[Er_inh], dynamic_M.I_inj[0]/uA), axis=0)
         scaled_Vm[Er_inh] = np.concatenate((scaled_Vm[Er_inh], dynamic_M.v[0]/mV), axis=0)
@@ -89,6 +89,6 @@ dynamic_dict = {'I':scaled_inputs, 'Vm':scaled_Vm, 'f':scaled_freq, 'fdiff': sca
 # Plot
 plot_scaling_compare([current_dict, dynamic_dict])
 
-# # Save
-np.save('results/saved/scaling_compare/current_dict.npy', current_dict)
-np.save('results/saved/scaling_compare/dynamic_dict.npy', dynamic_dict)
+# Save
+np.save('results/saved/Er_compare/current_dict.npy', current_dict)
+np.save('results/saved/Er_compare/dynamic_dict.npy', dynamic_dict)

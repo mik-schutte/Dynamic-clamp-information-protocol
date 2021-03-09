@@ -52,8 +52,8 @@ for _ in range(N_runs):
         IN = Barrel_IN(clamp_type='current', dt=1/sampling_rate)
 
         # Run simulation
-        PC_M, PC_S = PC.run(inj_input, duration*ms, Ni=1)
-        IN_M, IN_S = IN.run(inj_input, duration*ms, Ni=1)
+        PC_M, PC_S = PC.run(inj_input, duration*ms, 1, Er_exc, Er_inh)
+        IN_M, IN_S = IN.run(inj_input, duration*ms, 1, Er_exc, Er_inh)
         
         # Store results
         PC_results_I[sampling_rate] = np.concatenate((PC_results_I[sampling_rate], PC_M.I_inj[0]/nA), axis=0) 

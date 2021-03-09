@@ -213,8 +213,8 @@ class Barrel_IN:
             eqs_input = '''I_inj = inj_input(t) : amp'''
 
         elif self.clamp_type =='dynamic':
-            eqs_input = '''I_exc = g_exc(t) * (0*mV - v) : amp
-                    I_inh = g_inh(t) * (-75*mV - v) : amp
+            eqs_input = '''I_exc = g_exc(t) * (Er_e*mV - v) : amp
+                    I_inh = g_inh(t) * (Er_i*mV - v) : amp
                     I_inj = I_exc + I_inh : amp'''
         tracking = ['v', 'I_inj']
         
@@ -255,7 +255,7 @@ class Barrel_IN:
     def restore(self):
         self.network.restore()
 
-    def run(self, inj_input, simulation_time, Ni):
+    def run(self, inj_input, simulation_time, Ni, Er_e, Er_i):
         # Neuron parameters
         ## Pick a random set of parameters
         parameters = np.loadtxt('parameters/IN_parameters.csv', delimiter=',')

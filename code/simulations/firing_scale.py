@@ -31,7 +31,7 @@ dt = 1/sampling_rate #0.5 ms so that the barrel models work
 dv = 0.5
 duration = 2000
 qon_qoff_type = 'balanced'
-Er_exc, Er_inh = (0, -255)
+Er_exc, Er_inh = (0, -90)
 
 # Generate input and hiddenstate
 print('Generating...')

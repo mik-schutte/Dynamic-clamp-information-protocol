@@ -38,7 +38,7 @@ dt = 1/sampling_rate #0.5 ms so that the barrel models work
 dv = 0.5
 duration = 2000
 qon_qoff_type = 'balanced'
-Er_exc, Er_inh = (0, -75)
+Er_exc, Er_inh = (0, -90)
 N_runs = (61, 22) # for all pyramidal and interneuron parameters
 
 # Generate input

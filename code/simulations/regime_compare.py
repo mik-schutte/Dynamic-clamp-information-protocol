@@ -38,7 +38,7 @@ dt = 1/sampling_rate
 dv = 0.5
 duration = 2000
 qon_qoff_type = 'balanced'
-Er_exc, Er_inh = (0, -75)
+Er_exc, Er_inh = (0, -90)
 N_runs = 10 
 
 slow_membrane_potential, slow_inp = ([], [])

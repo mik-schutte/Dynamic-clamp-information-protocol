@@ -29,7 +29,7 @@ mean_firing_rate = (0.5)/1000
 dv = 0.5
 duration = 2000
 qon_qoff_type = 'balanced'
-Er_exc, Er_inh = (0, -75)
+Er_exc, Er_inh = (0, -90)
 N_runs = 10 # for all pyramidal and interneuron parameters
 
 sampling_array = [20, 10, 5, 2]

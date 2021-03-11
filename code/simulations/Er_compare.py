@@ -19,7 +19,7 @@ from visualization.plotter import plot_scaling_compare
 # Set parameters
 baseline = 0  
 amplitude_scaling = 7.5
-dynamic_scaling = 7.5
+dynamic_scaling = 10
 theta = 0     
 tau = 50               
 factor_ron_roff = 2    
@@ -32,9 +32,9 @@ dv = 0.5
 duration = 2000
 qon_qoff_type = 'balanced'
 Er_exc, Er_inh = (0, -75)
-N_runs = 5 # for all pyramidal and interneuron parameters
+N_runs = 2 # for all pyramidal and interneuron parameters
 
-Er_inh_array = [-75, -80, -90, -100, -200, -300]
+Er_inh_array = [-75, -90, -100, -200, -250, -300]
 scaled_inputs = dict.fromkeys(Er_inh_array, [])
 scaled_Vm = dict.fromkeys(Er_inh_array, [])
 scaled_freq = dict.fromkeys(Er_inh_array, [])
@@ -90,5 +90,5 @@ dynamic_dict = {'I':scaled_inputs, 'Vm':scaled_Vm, 'f':scaled_freq, 'fdiff': sca
 plot_scaling_compare([current_dict, dynamic_dict])
 
 # Save
-np.save('results/saved/Er_compare/current_dict.npy', current_dict)
-np.save('results/saved/Er_compare/dynamic_dict.npy', dynamic_dict)
+# np.save('results/saved/Er_compare/current_dict.npy', current_dict)
+# np.save('results/saved/Er_compare/dynamic_dict.npy', dynamic_dict)

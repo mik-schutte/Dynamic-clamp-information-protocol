@@ -38,8 +38,15 @@ def get_g0(v_rest, weights, Er_exc, Er_inh):
             g0 = float(weights[i] / (-v_rest - Er_inh))
             g0_inh_dict[i] = abs(g0)
 
-    #Sanitycheck weights        
-    # plt.hist(weights, bins=100)
+    # # Sanitycheck weights        
+    # plt.hist(weights, bins=100, label='Weight', color='gold')
+    # g0_exc = np.array(list(g0_exc_dict.values()))
+    # plt.hist(g0_exc*100, bins=100, label='Exc * 100', color='red')
+    # g0_inh = np.array(list(g0_inh_dict.values())) 
+    # plt.hist(np.negative(g0_inh*100), bins=100, label='Inh * 100', color='blue')
+    # plt.xlabel('weight or g0')
+    # plt.ylabel('freq')
+    # plt.legend()
     # plt.show()
 
     return [g0_exc_dict, g0_inh_dict]

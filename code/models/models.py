@@ -128,11 +128,11 @@ class Barrel_PC:
             beta_n = (0.5 * exp((10. - v/mV + VT/mV) / 40.))/ms : Hz
             dn/dt = alpha_n * (1 - n) - beta_n * n : 1
 
-            I_leak = gL * (v - EL) : amp
-            I_Na = gNa * m**3 * h * (v - ENa) : amp
-            I_K = gK * n**4 * (v - EK) : amp
+            I_leak = gL * (EL - v) : amp
+            I_Na = gNa * m**3 * h * (ENa - v) : amp
+            I_K = gK * n**4 * (EK - v) : amp
 
-            dv/dt = (-(I_leak + I_Na + I_K) + I_inj) / Cm : volt
+            dv/dt = ((I_leak + I_Na + I_K) + I_inj) / Cm : volt
             '''    
 
         # Neuron & parameter initialization
@@ -161,7 +161,7 @@ class Barrel_PC:
         parameters = np.loadtxt('parameters/PC_parameters.csv', delimiter=',')
         if Ni == None:
             Ni = np.random.randint(np.shape(parameters)[1])
-
+            
         if self.clamp_type =='dynamic':
             g_exc, g_inh = inj_input
 

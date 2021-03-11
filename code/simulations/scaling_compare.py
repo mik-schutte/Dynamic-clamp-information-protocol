@@ -32,10 +32,10 @@ dt = 1/sampling_rate #0.5 ms so that the barrel models work
 dv = 0.5
 duration = 2000
 qon_qoff_type = 'balanced'
-Er_exc, Er_inh = (0, -75)
-N_runs = 5 # for all pyramidal and interneuron parameters
+Er_exc, Er_inh = (0, -90)
+N_runs = 10 # for all pyramidal and interneuron parameters
 
-scale_exc_inh = [5, 7.5, 10, 15, 20, 25]
+scale_exc_inh = [1, 5, 7.5, 10, 15, 20]
 scaled_inputs = dict.fromkeys(scale_exc_inh, [])
 scaled_Vm = dict.fromkeys(scale_exc_inh, [])
 scaled_freq = dict.fromkeys(scale_exc_inh, [])

@@ -132,7 +132,7 @@ class Barrel_PC:
             I_Na = gNa * m**3 * h * (ENa - v) : amp
             I_K = gK * n**4 * (EK - v) : amp
 
-            dv/dt = ((I_leak + I_Na + I_K) + I_inj) / Cm : volt
+            dv/dt = (I_leak + I_Na + I_K + I_inj) / Cm : volt
             '''    
 
         # Neuron & parameter initialization
@@ -220,20 +220,32 @@ class Barrel_IN:
         
         # Model the neuron with differential equations
         eqs = '''
-            Vh_m = 3.583881 * k_m - 53.294454*mV : volt
-            m = 1 / (1 + exp(-(v - Vh_m) / k_m)) : 1
-            h = 1 / (1 + exp((v - Vh_h) / k_h)) : 1
+                # Activation gates Na channel
+                m = 1. / (1 + exp(-(v - Vh) / k)) : 1
+                Vh = 3.223725 * k - 62.615488*mV : volt
 
-            alpha_n = (0.032 * 5. / exprel((15. -v/mV + VT/mV) / 5.))/ms : Hz
-            beta_n = (0.5 * exp((10. - v/mV + VT/mV) / 40.))/ms : Hz
-            dn/dt = alpha_n * (1 - n) - beta_n * n : 1
+                # Inactivation gates Na channel
+                dh/dt = 5. * (alpha_h * (1 - h)- beta_h * h) : 1
+                alpha_h = 0.07 * exp(-(v + 58.*mV) / (20.*mV))/ms : Hz
+                beta_h = 1. / (exp(-0.1/mV * (v + 28.*mV)) + 1)/ms : Hz
 
-            I_leak = gL * (v - EL) : amp
-            I_Na = gNa * m**3 * h * (v - ENa) : amp
-            I_K = gK * n**4 * (v - EK) : amp
+                # Activation gates K channel
+                dn/dt = 5. * (alpha_n * (1 - n) - beta_n * n) : 1
+                alpha_n = 0.01/mV * 10*mV / exprel(-(v + 34.*mV) / (10.*mV))/ms : Hz
+                beta_n = 0.125 * exp(-(v + 44.*mV) / (80.*mV))/ms : Hz
 
-            dv/dt = (-(I_leak + I_Na + I_K) + I_inj) / Cm : volt
-            '''    
+                # Activation gates K3.1 channel
+                dn3/dt = alphan3 * (1 - n3) - betan3 * n3 : 1
+                alphan3 = (1. / exp(((param * ((-0.029 * v + (1.9*mV))/mV)))))/ms : Hz
+                betan3 = (1. / exp(((param * ((0.021 * v + (1.1*mV))/mV)))))/ms : Hz
+
+                # Currents
+                I_leak = gL * (EL - v) : amp
+                I_Na = gNa * m**3 * h * (ENa - v) : amp
+                I_K = gK * n**4 * (EK - v) : amp
+                I_K3 = gK3 * n3**4 * (EK - v) : amp
+                dv/dt = (I_leak + I_Na + I_K + I_K3 + I_inj) / Cm : volt
+             '''    
 
         # Neuron & parameter initialization
         neuron = b2.NeuronGroup(1, model=eqs+eqs_input, method='exponential_euler',
@@ -266,20 +278,17 @@ class Barrel_IN:
             g_exc, g_inh = inj_input
 
         ## Initiate parameters
+        param = np.log(10)
         area = 20000*b2.umetre**2
         Cm = parameters[2][Ni]*b2.farad/area * b2.cm**2 
         gL = parameters[0][Ni]*b2.siemens/area * b2.cm**2 
         gNa = parameters[3][Ni]*b2.siemens/area * b2.cm**2 
         gK = parameters[1][Ni]*b2.siemens/area * b2.cm**2 
+        gK3 = parameters[5][Ni]*b2.siemens/area * b2.cm**2 
         EL = -65*b2.mV
         ENa = 50*b2.mV
         EK = -90*b2.mV
-        k_m = parameters[4][Ni]*b2.volt
-        k_h = parameters[5][Ni]*b2.volt
-        Vh_h = parameters[6][Ni]*b2.volt
-        VT = -63*b2.mV
-
+        k = parameters[4][Ni]*b2.volt
+        
         self.network.run(simulation_time)
         return self.M, self.S
-
-

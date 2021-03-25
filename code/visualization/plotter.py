@@ -70,8 +70,8 @@ def plot_compare(dynamic_statemon, current_statemon, hiddenstate, dt):
     return
 
 
-def plot_special(axes, array, col=None, label=None):
-    x = np.linspace(np.min(array), np.max(array))
+def plot_special(axes, array, mini, maxi, col=None, label=None):
+    x = np.linspace(mini, maxi)
     density = stats.gaussian_kde(array)
     axes.plot(x, density(x), color=col, label=label)
     return
@@ -223,14 +223,14 @@ def plot_scaling_compare(pathorlist):
     x = np.arange(N+1)
 
     fig, axs = plt.subplots(ncols=3, figsize=(10,10))
-    plot_special(axs[0], current_dict['I'], label='current')
-    plot_special(axs[1], current_dict['Vm'], label='current')
+    plot_special(axs[0], current_dict['I'], -5, 5, label='current')
+    plot_special(axs[1], current_dict['Vm'], -100, -40, label='current')
     axs[2].bar(x[0], np.mean(current_dict['f']), label='current', yerr=np.std(current_dict['f']/N),
                 capsize=4)
 
     for idx, scale in enumerate(scale_array):
-        plot_special(axs[0], dynamic_dict['I'][scale], label='dynamic' + str( scale))
-        plot_special(axs[1], dynamic_dict['Vm'][scale], label='dynamic' + str( scale))
+        plot_special(axs[0], dynamic_dict['I'][scale], -5, 5, label='dynamic' + str( scale))
+        plot_special(axs[1], dynamic_dict['Vm'][scale], -100, -40, label='dynamic' + str( scale))
         axs[2].bar(x[idx+1], height=np.mean(dynamic_dict['f'][scale]), label='dynamic' + str( scale), 
         yerr=np.std(dynamic_dict['f'][scale])/N)
         

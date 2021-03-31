@@ -44,12 +44,17 @@ current_inputs = []
 current_Vm = []   
 current_freq = [] 
 
+g_exc = loadtxt('results/saved/test/g_exc.csv', delimiter=',')
+g_inh = np.loadtxt('results/saved/test/g_inh.csv', delimiter=',')
+input_theory = np.loadtxt('results/saved/test/input_theory.csv', delimiter=',')
+hidden_state = np.loadtxt('results/saved/test/hidden_state.csv', delimiter=',')
+
 for i in range(N_runs):
     # Generate 
     ## Input, Hiddenstate and Model
-    print('Generating...')
-    [g_exc, g_inh, input_theory, hidden_state] = make_dynamic_experiments(qon_qoff_type, baseline, amplitude_scaling, tau, factor_ron_roff, mean_firing_rate, sampling_rate, duration, dv)
-    print('Input and hiddenstate generate!')
+    # print('Generating...')
+    # [g_exc, g_inh, input_theory, hidden_state] = make_dynamic_experiments(qon_qoff_type, baseline, amplitude_scaling, tau, factor_ron_roff, mean_firing_rate, sampling_rate, duration, dv)
+    # print('Input and hiddenstate generate!')
 
     dynamic_neuron = Barrel_PC('dynamic', dt)
     dynamic_neuron.store()

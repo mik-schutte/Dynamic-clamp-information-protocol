@@ -102,9 +102,10 @@ class Barrel_PC:
         transfer in inhibitory and excitatory neurons of rat barrel cortex, but shows no clear
         influence on neuronal parameters. (Unpublished bachelor's thesis)
     '''
-    def __init__(self, clamp_type, dt):
+    def __init__(self, clamp_type, dt=0.5):
         self.clamp_type = clamp_type
         self.dt = dt
+        self.stored = False
         self.make_model()
     
     def make_model(self):
@@ -113,8 +114,8 @@ class Barrel_PC:
             eqs_input = '''I_inj = inj_input(t) : amp'''
 
         elif self.clamp_type =='dynamic':
-            eqs_input = '''I_exc = g_exc(t) * (Er_e*mV - v) : amp
-                    I_inh = g_inh(t) * (Er_i*mV - v) : amp
+            eqs_input = '''I_exc = g_exc(t) * (Er_e - v) : amp
+                    I_inh = g_inh(t) * (Er_i - v) : amp
                     I_inj = I_exc + I_inh : amp'''
         tracking = ['v', 'I_inj']
         
@@ -151,17 +152,18 @@ class Barrel_PC:
         
     def store(self):
         self.network.store()
+        self.stored = True
 
     def restore(self):
         self.network.restore()
 
-    def run(self, inj_input, simulation_time, Ni, Er_e, Er_i):
+    def run(self, inj_input, simulation_time, Ni=None):
         # Neuron parameters
         ## Pick a random set of parameters
         parameters = np.loadtxt('parameters/PC_parameters.csv', delimiter=',')
         if Ni == None:
             Ni = np.random.randint(np.shape(parameters)[1])
-            
+        
         if self.clamp_type =='dynamic':
             g_exc, g_inh = inj_input
 
@@ -174,12 +176,15 @@ class Barrel_PC:
         EL = -65*b2.mV
         ENa = 50*b2.mV
         EK = -90*b2.mV
+        Er_e = 0*b2.mV
+        Er_i = -75*b2.mV
         k_m = parameters[4][Ni]*b2.volt
         k_h = parameters[5][Ni]*b2.volt
         Vh_h = parameters[6][Ni]*b2.volt
         VT = -63*b2.mV
-
+   
         self.network.run(simulation_time)
+
         return self.M, self.S
 
 
@@ -202,9 +207,10 @@ class Barrel_IN:
         transfer in inhibitory and excitatory neurons of rat barrel cortex, but shows no clear
         influence on neuronal parameters. (Unpublished bachelor's thesis)
     '''
-    def __init__(self, clamp_type, dt):
+    def __init__(self, clamp_type, dt=0.5):
         self.clamp_type = clamp_type
         self.dt = dt
+        self.stored = False
         self.make_model()
     
     def make_model(self):
@@ -263,14 +269,16 @@ class Barrel_IN:
         
     def store(self):
         self.network.store()
+        self.stored = True
 
     def restore(self):
         self.network.restore()
 
-    def run(self, inj_input, simulation_time, Ni, Er_e, Er_i):
+    def run(self, inj_input, simulation_time, Ni=None):
         # Neuron parameters
         ## Pick a random set of parameters
         parameters = np.loadtxt('parameters/IN_parameters.csv', delimiter=',')
+
         if Ni == None:
             Ni = np.random.randint(np.shape(parameters)[1])
 
@@ -288,6 +296,8 @@ class Barrel_IN:
         EL = -65*b2.mV
         ENa = 50*b2.mV
         EK = -90*b2.mV
+        Er_e = 0*b2.mV
+        Er_i = -75*b2.mV
         k = parameters[4][Ni]*b2.volt
         
         self.network.run(simulation_time)

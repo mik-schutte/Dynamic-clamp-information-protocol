@@ -48,7 +48,7 @@ def plot_currentclamp(statemon, hiddenstate, dt):
 
 
 def plot_compare(dynamic_statemon, current_statemon, hiddenstate, dt):
-    '''Compares the dynamic voltage trace and current voltage trace.
+    ''' Compares the dynamic voltage trace and current voltage trace.
     '''
     fig, axs = plt.subplots(2, figsize=(12,12))
     fig.suptitle('Comparison between Dynamic and Current Clamp', y=0.95)
@@ -71,6 +71,7 @@ def plot_compare(dynamic_statemon, current_statemon, hiddenstate, dt):
 
 
 def plot_special(axes, array, mini, maxi, col=None, label=None):
+    ''' Creates a line over an histogram to represent a distribution '''
     x = np.linspace(mini, maxi)
     density = stats.gaussian_kde(array)
     axes.plot(x, density(x), color=col, label=label)
@@ -78,7 +79,7 @@ def plot_special(axes, array, mini, maxi, col=None, label=None):
 
 
 def plot_clampcell_MI(MI_data):
-    '''docstring
+    ''' Plot the results of the clamp comparison simulation
     '''
     # Load Data
     MI_PC_current = [run['MI'] for run in MI_data['PC_current']]
@@ -123,7 +124,7 @@ def plot_regime_compare(pathorlist):
     ''' Plots the injected current and membrane potential 
         of different hidden state regimes.
 
-        pathorlist : path to the scaling_compare folder or [slow, fast, slow_high, fast_low]
+        pathorlist : path to the regime_compare folder or [slow, fast, slow_high, fast_low]
     '''
     # Check input
     if isinstance(pathorlist, str):
@@ -159,7 +160,9 @@ def plot_regime_compare(pathorlist):
 
 
 def plot_dt_compare(pathorlist):
-    ''' If you input list it should be in the order of PC_results, IN_results
+    ''' Plot the results of the dt_compare simulation.
+        
+        pathorlist : path to the dt_compare results folder or [PC_results, IN_results]
     '''
     # Check input
     if isinstance(pathorlist, str):
@@ -204,7 +207,7 @@ def plot_scaling_compare(pathorlist):
     ''' Plots the injected current, membrane potential and frequency
         of different dynamic scaling scales.
 
-        pathorlist : path to the scaling_compare folder or [current_dict, dynamic_dict]
+        pathorlist : path to the scaling_compare results folder or [current_dict, dynamic_dict]
     '''
     # Check input
     if isinstance(pathorlist, str):

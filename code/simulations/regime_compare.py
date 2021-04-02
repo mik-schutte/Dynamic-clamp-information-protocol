@@ -1,5 +1,4 @@
-'''
-    regime_compare.py
+''' regime_compare.py
     
     Compare different regimes, as show in table 1 of Zeldenrust et al., (2017)
 '''

@@ -1,7 +1,6 @@
-'''
-    balance_compare.py
+''' scaling_compare.py
 
-    Compare the Mutual information of different Excitation Inhibition balances.
+    Compare the effect of different scales on the input, membrane potential and firing frequency.
 '''
 import os,sys,inspect
 current_dir = os.path.dirname(os.path.abspath(inspect.getfile(inspect.currentframe())))

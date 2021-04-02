@@ -1,3 +1,9 @@
+''' clamp_compare.py
+
+    Simulation that compares the Mutual Information of Pyramidal cells and Interneurons between
+    current clamp and dynamic clamp setup.
+'''
+
 import os,sys,inspect
 current_dir = os.path.dirname(os.path.abspath(inspect.getfile(inspect.currentframe())))
 parent_dir = os.path.dirname(current_dir)
@@ -11,10 +17,6 @@ from visualization.plotter import plot_currentclamp, plot_dynamicclamp, plot_com
 from foundations.MI_calculation import analyze_exp
 from foundations.helpers import scale_dynamic_input, scale_input_theory, scale_to_freq, make_spiketrain
 from models.models import Barrel_PC
-
-
-'''Docstring
-'''
 
 ## Generate input and hiddenstate
 # Set parameters
@@ -42,7 +44,6 @@ print('Generating...')
 print('Input and hiddenstate generate!')
 
 
-
 ## Simulate
 # Pyramidal cells
 MI = {'PC_current' : [], 'PC_dynamic' : [], 'IN_current' : [], 'IN_dynamic' : []}
@@ -67,12 +68,10 @@ for i in range(N_runs[0]):
     scale = scale_to_freq(dynamic_barrel_PC, (g_exc, g_inh), target, 'dynamic', duration, i, dt)
     input_dynamic = scale_dynamic_input(g_exc, g_inh, dynamic_scaling, dt)
 
-    print(len(input_current.values))
     # Run simulation
     M_current, S_current = current_barrel_PC.run(input_current, duration*ms, Ni=i)
     M_dynamic, S_dynamic = dynamic_barrel_PC.run(input_dynamic, duration*ms, Ni=i)
 
-    print('datapoints', len(M_dynamic.t))
     plot_currentclamp(M_current, hidden_state, dt=dt)
 
     # Create spiketrain
@@ -91,29 +90,29 @@ for i in range(N_runs[0]):
     print(Output_current['MI'])
     plot_currentclamp(M_current, hidden_state, dt=dt)
 
-# # Interneurons
-# current_barrel_IN = Barrel_IN('current', dt=dt)
-# dynamic_barrel_IN = Barrel_IN('dynamic', dt=dt)
-# current_barrel_IN.store()
-# dynamic_barrel_IN.store()
+# Interneurons
+current_barrel_IN = Barrel_IN('current', dt=dt)
+dynamic_barrel_IN = Barrel_IN('dynamic', dt=dt)
+current_barrel_IN.store()
+dynamic_barrel_IN.store()
 
-# for i in range(N_runs[1]):
-#     print('Run', i+1 ,'of', N_runs[1])
-#     # Clamps
-#     current_barrel_IN.restore()
-#     dynamic_barrel_IN.restore()
-#     M_current, S_current = current_barrel_IN.run(input_current, duration*ms, i, Er_exc, Er_inh)
-#     M_dynamic, S_dynamic = dynamic_barrel_IN.run((g_exc, g_inh), duration*ms, i, Er_exc, Er_inh)
+for i in range(N_runs[1]):
+    print('Run', i+1 ,'of', N_runs[1])
+    # Clamps
+    current_barrel_IN.restore()
+    dynamic_barrel_IN.restore()
+    M_current, S_current = current_barrel_IN.run(input_current, duration*ms, i, Er_exc, Er_inh)
+    M_dynamic, S_dynamic = dynamic_barrel_IN.run((g_exc, g_inh), duration*ms, i, Er_exc, Er_inh)
 
-#     # Create spiketrain
-#     spiketrain_current = make_spiketrain(S_current, hidden_state, dt)
-#     spiketrain_dynamic = make_spiketrain(S_dynamic, hidden_state, dt)
+    # Create spiketrain
+    spiketrain_current = make_spiketrain(S_current, hidden_state, dt)
+    spiketrain_dynamic = make_spiketrain(S_dynamic, hidden_state, dt)
 
-#     # Calculate MI
-#     Output_current = analyze_exp(ron, roff, hidden_state, input_theory, dt, theta, spiketrain_current)
-#     Output_dynamic = analyze_exp(ron, roff, hidden_state, input_theory, dt, theta, spiketrain_dynamic)
-#     MI['IN_current'].append(Output_current)
-#     MI['IN_dynamic'].append(Output_dynamic)
+    # Calculate MI
+    Output_current = analyze_exp(ron, roff, hidden_state, input_theory, dt, theta, spiketrain_current)
+    Output_dynamic = analyze_exp(ron, roff, hidden_state, input_theory, dt, theta, spiketrain_dynamic)
+    MI['IN_current'].append(Output_current)
+    MI['IN_dynamic'].append(Output_dynamic)
 
     # # Sanity check
     # print(Output_dynamic['MI'])

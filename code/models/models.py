@@ -1,5 +1,4 @@
-''' 
-    models.py
+''' models.py
 
     Python file containing different neuron models used in simulations.
 '''
@@ -87,14 +86,12 @@ class Barrel_PC:
     ''' Hodgkin-Huxley model of a Pyramidal Cell in the rat barrel cortex.
 
         INPUT:
-            inj_input ((Tuple of) TimedArray): Input current or conductances (g_exc, g_inh)
-            simulation_time (float): Simulation time [milliseconds]
-            clamp_type (string): type of input, ['current' or 'dynamic'] default = current
-            Ni (int): parameter index
+            clamp_type (str): type of input, ['current' or 'dynamic']
+            dt (float): time step of the simulation in miliseconds.
 
         OUTPUT:
-            StateMonitor: Brian2 StateMonitor with recorded fields
-            ['v', 'input' or 'conductance']
+            StateMonitor, SpikeMonitor: Brian2 StateMonitor with recorded fields
+            ['v', 'input' or 'conductance'] and SpikeMonitor which records spikes
 
         The parameters used in this model have been fitted by Xenia Sterl under 
         the supervision of Fleur Zeldenrust. Full description can be found in:
@@ -158,6 +155,16 @@ class Barrel_PC:
         self.network.restore()
 
     def run(self, inj_input, simulation_time, Ni=None):
+        ''' Run simulation.
+
+            INPUT
+            inj_input ((Tuple of) TimedArray): input current or conductances (g_exc, g_inh)
+            simulation_time (float): simulation time [milliseconds]
+            Ni (int): neuron index
+
+            OUTPUT
+            StateMonitor, SpikeMonitor: brian2 classes containing neuron information
+        '''
         # Neuron parameters
         ## Pick a random set of parameters
         parameters = np.loadtxt('parameters/PC_parameters.csv', delimiter=',')
@@ -190,16 +197,14 @@ class Barrel_PC:
 
 class Barrel_IN:
     ''' Hodgkin-Huxley model of an Inter neuron in the rat barrel cortex.
-
+        
         INPUT:
-            inj_input ((Tuple of) TimedArray): Input current or conductances (g_exc, g_inh)
-            simulation_time (float): Simulation time [milliseconds]
-            clamp_type (string): type of input, ['current' or 'dynamic'] default = current
-            Ni (int): parameter index
+            clamp_type (str): type of input, ['current' or 'dynamic']
+            dt (float): time step of the simulation in miliseconds.
 
         OUTPUT:
-            StateMonitor: Brian2 StateMonitor with recorded fields
-            ['v', 'input' or 'conductance']
+            StateMonitor, SpikeMonitor: Brian2 StateMonitor with recorded fields
+            ['v', 'input' or 'conductance'] and SpikeMonitor which records spikes
 
         The parameters used in this model have been fitted by Xenia Sterl under 
         the supervision of Fleur Zeldenrust. Full description can be found at:
@@ -219,8 +224,8 @@ class Barrel_IN:
             eqs_input = '''I_inj = inj_input(t) : amp'''
 
         elif self.clamp_type =='dynamic':
-            eqs_input = '''I_exc = g_exc(t) * (Er_e*mV - v) : amp
-                    I_inh = g_inh(t) * (Er_i*mV - v) : amp
+            eqs_input = '''I_exc = g_exc(t) * (Er_e - v) : amp
+                    I_inh = g_inh(t) * (Er_i - v) : amp
                     I_inj = I_exc + I_inh : amp'''
         tracking = ['v', 'I_inj']
         
@@ -275,6 +280,16 @@ class Barrel_IN:
         self.network.restore()
 
     def run(self, inj_input, simulation_time, Ni=None):
+        ''' Run simulation.
+
+            INPUT
+            inj_input ((Tuple of) TimedArray): input current or conductances (g_exc, g_inh)
+            simulation_time (float): simulation time [milliseconds]
+            Ni (int): neuron index
+
+            OUTPUT
+            StateMonitor, SpikeMonitor: brian2 classes containing neuron information
+        '''
         # Neuron parameters
         ## Pick a random set of parameters
         parameters = np.loadtxt('parameters/IN_parameters.csv', delimiter=',')

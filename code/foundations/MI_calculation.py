@@ -97,7 +97,7 @@ def calc_MI_input(ron, roff, I, theta, x, dt):
 
 
 def calc_MI_ideal(ron, roff, spiketrain, x, dt):
-    ''' docstring
+    ''' Calculate the (conditional) entropy, MI, and likelihood.
     '''
     ## Calculate qon, qoff, w and theta
     spikesup, spikesdown = reorder_x(x, spiketrain)

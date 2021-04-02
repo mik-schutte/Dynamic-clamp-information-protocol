@@ -1,5 +1,7 @@
-'''
-    docsting
+''' Er_compare.py
+
+    Simulation that compares the effect of different (inhibitory) synaptic reversal potentials
+    on the input, membrane potential and firing frequency.
 '''
 
 import os,sys,inspect

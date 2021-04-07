@@ -65,6 +65,7 @@ def scale_to_freq(neuron, input_theory, target, on_off_ratio, clamp_type, durati
                 return False
 
             neuron.restore()
+            print('scale', scale_list[idx-1])
             return scale_input_theory(input_theory, clamp_type, 0, scale_list[idx-1], dt)
 
     # Check for ON/OFF ratio
@@ -74,6 +75,7 @@ def scale_to_freq(neuron, input_theory, target, on_off_ratio, clamp_type, durati
         return False
 
     neuron.restore()
+    print('scale', scale_list[-1])
     return scale_input_theory(input_theory, clamp_type, 0, scale_list[-1], dt)
     
 def scale_input_theory(input_theory, clamp_type, baseline, scale, dt):
@@ -93,38 +95,38 @@ def scale_input_theory(input_theory, clamp_type, baseline, scale, dt):
         inject_input = TimedArray(scaled_input, dt=dt*ms)
 
     elif clamp_type == 'dynamic':
-        # Check for correct inpuy
+        # Check for correct input
         try: 
-            g_exc, g_inh = dynamic_theory
+            g_exc, g_inh = input_theory
+            g_exc = baseline + g_exc*mS * scale
+            g_inh = g_inh*mS * scale
+            g_exc = TimedArray(g_exc, dt=dt*ms)
+            g_inh = TimedArray(g_inh, dt=dt*ms)
+            inject_input = (g_exc, g_inh)
         except: 
             ValueError('For scaling of dynamic theory insert (g_exc, g_inh).')
-        g_exc = baseline + g_exc*mS * scale
-        g_inh = g_inh*mS * scale
-        g_exc = TimedArray(g_exc, dt=dt*ms)
-        g_inh = TimedArray(g_inh, dt=dt*ms)
-        inject_input = (g_exc, g_inh)
 
     return inject_input
 
-def make_spiketrain(S, hiddenstate, dt):
+def make_spiketrain(SpikeMon, hiddenstate, dt):
     ''' Generates a binary array that spans the whole simulation and 
         is 1 when a spike is fired.
     '''
     spiketrain = np.zeros((1, hiddenstate.shape[0]))
-    spikeidx = np.array(S.t/ms/dt, dtype=int)
+    spikeidx = np.array(SpikeMon.t/ms/dt, dtype=int)
     spiketrain[:, spikeidx] = 1
     return spiketrain
 
-def get_spike_intervals(S):
+def get_spike_intervals(SpikeMon):
     ''' Determine the interval between spikes in milliseconds. 
     '''
     # Check
-    if not isinstance(S, StateMonitor):
+    if not isinstance(SpikeMon, SpikeMonitor):
         TypeError('No SpikeMonitor provided')
         
     intervals = []
-    for i in range(len(S.t)-1):
-        intervals.append(abs(S.t[i+1] - S.t[i])/ms)
+    for i in range(len(SpikeMon.t)-1):
+        intervals.append(abs(SpikeMon.t[i+1] - SpikeMon.t[i])/ms)
     return intervals
 
 def get_on_index(hidden_state):

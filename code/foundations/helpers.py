@@ -60,22 +60,20 @@ def scale_to_freq(neuron, input_theory, target, on_off_ratio, clamp_type, durati
         if idx != 0 and freq_diff_list[idx-1] < freq_diff:
             # Check for ON/OFF ratio
             if on_freq != 0 and freq != 0 and on_freq/freq < on_off_ratio:
-                print('FAILED: ratio not met')
+                print(f'FAILED: {clamp_type} ratio not met')
                 neuron.restore()
                 return False
 
             neuron.restore()
-            print('scale', scale_list[idx-1])
             return scale_input_theory(input_theory, clamp_type, 0, scale_list[idx-1], dt)
 
     # Check for ON/OFF ratio
     if on_freq/freq < on_off_ratio:
-        print('FAILED: ratio not met')   
+        print(f'FAILED: {clamp_type} ratio not met')   
         neuron.restore()
         return False
 
     neuron.restore()
-    print('scale', scale_list[-1])
     return scale_input_theory(input_theory, clamp_type, 0, scale_list[-1], dt)
     
 def scale_input_theory(input_theory, clamp_type, baseline, scale, dt):
@@ -84,6 +82,7 @@ def scale_input_theory(input_theory, clamp_type, baseline, scale, dt):
         INPUT
         input_theory (array or tuple): array of theoretical current or (g_exc, g_inh)
         clamp_type (str): 'current' or 'dynamic'
+        baseline (float or tuple): baseline if dynamic (base_exc, base_inh)
         scale (float): scaling factor
         dt (float): time step of the simulation
 
@@ -91,20 +90,24 @@ def scale_input_theory(input_theory, clamp_type, baseline, scale, dt):
         inj_input (brian2.TimedArray): the scaled input
     '''
     if clamp_type == 'current':
+        baseline = np.ones_like(input_theory, dtype=float)*baseline
         scaled_input = (baseline + input_theory * scale)*uamp
         inject_input = TimedArray(scaled_input, dt=dt*ms)
 
     elif clamp_type == 'dynamic':
+        # base_exc, base_inh = baseline
         # Check for correct input
-        try: 
-            g_exc, g_inh = input_theory
-            g_exc = baseline + g_exc*mS * scale
-            g_inh = g_inh*mS * scale
-            g_exc = TimedArray(g_exc, dt=dt*ms)
-            g_inh = TimedArray(g_inh, dt=dt*ms)
-            inject_input = (g_exc, g_inh)
-        except: 
-            ValueError('For scaling of dynamic theory insert (g_exc, g_inh).')
+        # try: 
+        g_exc, g_inh = input_theory
+        # base_exc = np.ones_like(g_exc, dtype=float)*base_exc
+        # base_inh = np.ones_like(g_inh, dtype=float)*base_inh
+        g_exc = (baseline + g_exc * scale)*mS
+        g_inh = (baseline + g_inh * scale)*mS
+        g_exc = TimedArray(g_exc, dt=dt*ms)
+        g_inh = TimedArray(g_inh, dt=dt*ms)
+        inject_input = (g_exc, g_inh)
+        # except: 
+            # ValueError('For scaling of dynamic theory insert (g_exc, g_inh).')
 
     return inject_input
 
@@ -128,6 +131,7 @@ def get_spike_intervals(SpikeMon):
     for i in range(len(SpikeMon.t)-1):
         intervals.append(abs(SpikeMon.t[i+1] - SpikeMon.t[i])/ms)
     return intervals
+    
 
 def get_on_index(hidden_state):
     ''' Get the indexis where the hidden state is ON.
@@ -138,6 +142,16 @@ def get_on_index(hidden_state):
         if val == 1:
             on_idx.append(idx)
     return on_idx
+
+def get_off_index(hidden_state):
+    ''' Get the indexis where the hidden state is OFF.
+    '''
+    # Index where hidden state is OFF
+    off_idx = []
+    for idx, val in enumerate(hidden_state):
+        if val == 0:
+            off_idx.append(idx)
+    return off_idx
 
 def get_on_spikes(spiketrain, hidden_state):
     ''' Get the index where spikes are fired during ON-state.
@@ -153,7 +167,23 @@ def get_on_spikes(spiketrain, hidden_state):
     for idx in spike_idx:
         if idx in on_idx:
             on_spikes.append(idx)
-    return on_spikes
+    return np.array(on_spikes)
+
+def get_off_spikes(spiketrain, hidden_state):
+    ''' Get the index where the spikes are fired during OFF-state.
+    '''
+    # OFF index
+    off_idx = get_off_index(hidden_state)
+
+    # Spike index
+    spike_idx = np.where(spiketrain==1)[1]
+
+    # Spike when hidden state is OFF
+    off_spikes = []
+    for idx in spike_idx:
+        if idx in off_idx:
+            off_spikes.append(idx)
+    return np.array(off_spikes)
 
 def get_on_freq(spiketrain, hidden_state, dt):
     ''' Get firing frequency during on state in Hertz (Hz).

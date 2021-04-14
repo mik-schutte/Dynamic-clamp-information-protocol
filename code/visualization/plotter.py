@@ -247,3 +247,36 @@ def plot_scaling_compare(pathorlist):
     fig.suptitle('Dynamic scaling effect on')
     plt.legend()
     plt.show()
+
+def plot_ISI_compare(pathordict):
+    '''docstring
+    '''
+    # Check input
+    if isinstance(pathordict, str):
+        ISI = np.load(pathordict, allow_pickle=True).item()
+
+    elif isinstance(pathordict, dict):
+        ISI = pathordict
+    
+    else: 
+        raise AssertionError('Input should be a path to the saved .npy file or {current_PC, dynamic_PC, current_IN, dynamic_IN}.')
+    
+    # Plot
+    fig, axs = plt.subplots(nrows=2, ncols=2, figsize=(10,10))
+    sns.histplot(ISI['current_PC'], ax=axs[0,0], kde=True, bins=50, color='red')
+    sns.histplot(ISI['dynamic_PC'], ax=axs[0,1], kde=True, bins=50, color='red')
+    sns.histplot(ISI['current_IN'], ax=axs[1,0], kde=True, bins=50, color='blue')
+    sns.histplot(ISI['dynamic_IN'], ax=axs[1,1], kde=True, bins=50, color='blue')
+
+    axs[0, 0].set_yscale('log')
+    axs[0, 0].title.set_text('current PC')
+    axs[0, 1].title.set_text('dynamic PC')
+    axs[1, 0].title.set_text('current IN')
+    axs[1, 1].title.set_text('dynamic IN')
+    axs[0, 0].set_ylabel('')
+    axs[0, 1].set_ylabel('')
+    axs[1, 0].set_ylabel('')
+    axs[1, 1].set_ylabel('')
+    fig.text(0.5, 0.04, 'ISI (ms)', ha='center')
+    fig.text(0.04, 0.5, 'Frequency', va='center', rotation='vertical')
+    plt.show()

@@ -13,7 +13,7 @@ from models.models import *
 from foundations.helpers import *
 import numpy as np
 import matplotlib.pyplot as plt
-from visualization.plotter import plot_currentclamp, plot_dynamicclamp
+from visualization.plotter import plot_currentclamp, plot_dynamicclamp, plot_ISI_compare
 
 # Set parameters
 baseline = 0  
@@ -98,15 +98,5 @@ for _ in range(10):
 # # Save ISI dictionary
 np.save(f'results/saved/ISI_compare/ISI.npy', ISI)
 
-# Plot a lot
-fig, axs = plt.subplots(nrows=2, ncols=2, figsize=(10,10))
-axs[0, 0].hist(ISI['current_PC'], bins=100, label='current PC')
-axs[0, 1].hist(ISI['dynamic_PC'], bins=100, label='dynamic PC')
-axs[1, 0].hist(ISI['current_IN'], bins=100, label='current IN')
-axs[1, 1].hist(ISI['dynamic_IN'], bins=100, label='dynamic IN')
-axs[0, 0].title.set_text('current PC')
-axs[0, 1].title.set_text('dynamic PC')
-axs[1, 0].title.set_text('current IN')
-axs[1, 1].title.set_text('dynamic IN')
-plt.legend()
-plt.show()
+# # Plot
+# plot_ISI_compare(ISI)

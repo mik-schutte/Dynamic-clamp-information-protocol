@@ -79,7 +79,7 @@ def plot_special(axes, array, mini, maxi, col=None, label=None):
 
 
 def plot_clampcell_MI(MI_data):
-    ''' Plot the results of the clamp comparison simulation
+    ''' Plot the results of the clamp comparison simulation0
     '''
     # Load Data
     MI_PC_current = [run['MI'] for run in MI_data['PC_current']]

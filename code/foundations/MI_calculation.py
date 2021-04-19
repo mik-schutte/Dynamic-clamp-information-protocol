@@ -114,7 +114,7 @@ def calc_MI_ideal(ron, roff, spiketrain, x, dt):
     qoff = nspikesdown / ((len(x) - sum(x))*dt)
     w = np.log(qon/qoff)
     theta = qon-qoff
-    print('w=', w, '; theta=', theta)
+    # print('w=', w, '; theta=', theta)
 
     ## Integrate L
     I = spiketrain/dt

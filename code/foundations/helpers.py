@@ -39,7 +39,7 @@ def scale_to_freq(neuron, input_theory, target, on_off_ratio, clamp_type, durati
         raise ValueError('ClampType must be \'current\' or \'dynamic\'')
 
     freq_diff_list = []
-    scale_list =[1, 2.5, 5, 7.5, 10, 12.5, 15, 17.5, 20, 22.5, 25]
+    scale_list = [1, 2.5, 5, 7.5, 10, 12.5, 15, 17.5, 20, 22.5, 25]
     for idx, scale in enumerate(scale_list):
         neuron.restore()
 
@@ -60,7 +60,7 @@ def scale_to_freq(neuron, input_theory, target, on_off_ratio, clamp_type, durati
         if idx != 0 and freq_diff_list[idx-1] < freq_diff:
             # Check for ON/OFF ratio
             if on_freq != 0 and freq != 0 and on_freq/freq < on_off_ratio:
-                print(f'FAILED: {clamp_type} ratio not met')
+                # print(f'FAILED: {clamp_type} ratio not met')
                 neuron.restore()
                 return False
 
@@ -69,7 +69,7 @@ def scale_to_freq(neuron, input_theory, target, on_off_ratio, clamp_type, durati
 
     # Check for ON/OFF ratio
     if on_freq/freq < on_off_ratio:
-        print(f'FAILED: {clamp_type} ratio not met')   
+        # print(f'FAILED: {clamp_type} ratio not met')   
         neuron.restore()
         return False
 
@@ -191,3 +191,45 @@ def get_on_freq(spiketrain, hidden_state, dt):
     on_spike_count = len(get_on_spikes(spiketrain, hidden_state))
     on_duration = len(get_on_index(hidden_state))*dt*ms
     return (on_spike_count/on_duration)/Hz
+
+def get_on_off_isi(hidden_state, SpikeMon, dt):
+    ''' Docstring
+    '''
+    # Get hidden state indexes where a switch of state occurred
+    diff = np.diff(hidden_state)
+    switches = np.array([-1])
+    for idx, value in enumerate(diff):
+        if value != 0:
+            switches = np.append(switches, idx)
+    switches = np.append(switches, len(hidden_state) - 1)
+
+    # Seperate the hidden state in to blocks
+    block_array = []
+    for idx, switch in enumerate(switches[:-1]):        
+        start = switches[idx] + 1
+        stop = switches[idx + 1]
+        state = hidden_state[start]
+        block = (start, stop, state)
+        block_array.append(block)
+
+    # Check if a spike occured during a block
+    spikes_per_block = {1:[], 0:[]}
+    for block in block_array:
+        block_spikes = []
+        block_time = np.arange(block[0]*dt, block[1]*dt+dt, dt)
+        for t in block_time:
+            if t in SpikeMon.t/ms:
+                block_spikes.append(t)
+        spikes_per_block[block[2]].append(block_spikes)
+
+    # Get the ISI for spikes in each block
+    on_isi = np.array([])
+    off_isi = np.array([])
+    for state in spikes_per_block:
+        for block in spikes_per_block[state]:
+            if state == 1:
+                on_isi = np.append(on_isi, np.diff(block))
+            elif state == 0:
+                off_isi = np.append(off_isi, np.diff(block))
+    
+    return on_isi, off_isi

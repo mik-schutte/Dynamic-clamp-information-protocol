@@ -59,7 +59,7 @@ for _ in range(25):
     print('Generating...')
     [g_exc, g_inh, input_theory, hidden_state] = make_dynamic_experiments(qon_qoff_type, baseline, amplitude_scaling, tau, factor_ron_roff, mean_firing_rate, sampling_rate, duration, dv)
     print('Input and hiddenstate generate!')
-    for i in range(1, 12): #N_runs[0]):
+    for i in range(1, 2): #N_runs[0]):
         print('Run', i)
         current_barrel_PC.restore()
         dynamic_barrel_PC.restore()
@@ -80,7 +80,7 @@ for _ in range(25):
             # Create spiketrain
             spiketrain_current = make_spiketrain(S_current, hidden_state, dt)
             spiketrain_dynamic = make_spiketrain(S_dynamic, hidden_state, dt)
-
+            
             # Calculate MI
             Output_current = analyze_exp(ron, roff, hidden_state, input_theory, dt, theta, spiketrain_current)
             Output_dynamic = analyze_exp(ron, roff, hidden_state, input_theory, dt, theta, spiketrain_dynamic)
@@ -93,17 +93,7 @@ for _ in range(25):
             # print(Output_current['MI'])
             # plot_currentclamp(M_current, hidden_state, dt=dt)
 
-# Plot
-# print(MI['PC_current'])
-# MI_PC_current = [run['MI'] for run in MI['PC_current']]
-# MI_PC_dynamic = [run['MI'] for run in MI['PC_dynamic']]
-# x = np.arange(2)
-# fig, ax = plt.subplots()
-# bar = sns.barplot(data=[MI_PC_current, MI_PC_dynamic])
-# ax.set_xticklabels(['current', 'dynamic'])
-# plt.show()
-
-    for i in range(8, 12):
+    for i in range(9, 10):
         # Clamps
         current_barrel_IN.restore()
         dynamic_barrel_IN.restore()
@@ -118,8 +108,8 @@ for _ in range(25):
         # Check if scale was correct
         if input_dynamic != False and input_current != False:
             # Run simulation
-            M_current, S_current = current_barrel_PC.run(input_current, duration*ms, Ni=i)
-            M_dynamic, S_dynamic = dynamic_barrel_PC.run(input_dynamic, duration*ms, Ni=i)
+            M_current, S_current = current_barrel_IN.run(input_current, duration*ms, Ni=i)
+            M_dynamic, S_dynamic = dynamic_barrel_IN.run(input_dynamic, duration*ms, Ni=i)
 
             # Create spiketrain
             spiketrain_current = make_spiketrain(S_current, hidden_state, dt)
@@ -130,13 +120,6 @@ for _ in range(25):
             Output_dynamic = analyze_exp(ron, roff, hidden_state, input_theory, dt, theta, spiketrain_dynamic)
             MI['IN_current'].append(Output_current)
             MI['IN_dynamic'].append(Output_dynamic)
-            
-
-#     # # Sanity check
-#     # print(Output_dynamic['MI'])
-#     # plot_dynamicclamp(M_dynamic, g_exc, g_inh, hidden_state, dt=dt)
-#     # print(Output_current['MI'])
-#     # plot_currentclamp(M_current, hidden_state, dt=dt)
 
 print('Simulation complete, saving files')
 
@@ -145,7 +128,23 @@ np.savetxt(f'results/saved/clamp_compare2/hiddenstate.csv', hidden_state, delimi
 np.savetxt(f'results/saved/clamp_compare2/input_theory.csv', input_theory, delimiter=',')
 np.savetxt(f'results/saved/clamp_compare2/spiketrain_current.csv', spiketrain_current, delimiter=',')
 np.savetxt(f'results/saved/clamp_compare2/spiketrain_dynamic.csv', spiketrain_dynamic, delimiter=',')
-np.save(f'results/saved/clamp_compare2/MI.npy', MI)
+np.save(f'results/saved/clamp_compare2/MI.npy', MI) 
+#     # # Sanity check
+#     # print(Output_dynamic['MI'])
+#     # plot_dynamicclamp(M_dynamic, g_exc, g_inh, hidden_state, dt=dt)
+#     # print(Output_current['MI'])
+#     # plot_currentclamp(M_current, hidden_state, dt=dt)
+# Plot
+# print(MI['PC_current'])
+# MI_PC_current = [run['MI'] for run in MI['PC_current']]
+# MI_PC_dynamic = [run['MI'] for run in MI['PC_dynamic']]
+# x = np.arange(2)
+# fig, ax = plt.subplots()
+# bar = sns.barplot(data=[MI_PC_current, MI_PC_dynamic])
+# ax.set_xticklabels(['current', 'dynamic'])
+# plt.show()
+
+
 
 
 

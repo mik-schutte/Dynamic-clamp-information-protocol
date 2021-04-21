@@ -51,60 +51,59 @@ for _ in range(20):
     # Generate input
     [g_exc, g_inh, input_theory, hidden_state] = make_dynamic_experiments(qon_qoff_type, baseline, amplitude_scaling, tau, factor_ron_roff, mean_firing_rate, sampling_rate, duration, dv)
     
-    # # Pyramidal Cells
-    # for i in range(1, 21):
-    #     # print(f'Simulating PC {i+1} of {N_runs[0]}.')
-    #     current_PC.restore()
-    #     dynamic_PC.restore()
-        
-    #     # Scale input
-    #     inj_current = scale_to_freq(current_PC, input_theory, target, on_off_ratio, 'current', duration, hidden_state, dt, i)
-    #     inj_dynamic = scale_to_freq(dynamic_PC, (g_exc, g_inh), target, on_off_ratio, 'dynamic', duration, hidden_state, dt, i)
+    # Pyramidal Cells
+    i = 35
+    current_PC.restore()
+    dynamic_PC.restore()
+    
+    # Scale input
+    inj_current = scale_to_freq(current_PC, input_theory, target, on_off_ratio, 'current', duration, hidden_state, dt, i)
+    inj_dynamic = scale_to_freq(dynamic_PC, (g_exc, g_inh), target, on_off_ratio, 'dynamic', duration, hidden_state, dt, i)
 
-    #     # Simulate and calculate ISI
-    #     if inj_current != False and inj_dynamic != False:
-    #         current_M, current_S = current_PC.run(inj_current, duration*ms, Ni=i)
-    #         dynamic_M, dynamic_S = dynamic_PC.run(inj_dynamic, duration*ms, Ni=i)
-    #         ISI_current_on, ISI_current_off = get_on_off_isi(hidden_state, current_S, dt)
-    #         ISI_dynamic_on, ISI_dynamic_off = get_on_off_isi(hidden_state, dynamic_S, dt)
-    #         ISI['current_PC']['on'] = np.append(ISI['current_PC']['on'], ISI_current_on)
-    #         ISI['current_PC']['off'] = np.append(ISI['current_PC']['off'], ISI_current_off)
-    #         ISI['dynamic_PC']['on'] = np.append(ISI['dynamic_PC']['on'], ISI_dynamic_on)
-    #         ISI['dynamic_PC']['off'] = np.append(ISI['dynamic_PC']['off'], ISI_dynamic_off)
+    # Simulate and calculate ISI
+    if inj_current != False and inj_dynamic != False:
+        current_M, current_S = current_PC.run(inj_current, duration*ms, Ni=i)
+        dynamic_M, dynamic_S = dynamic_PC.run(inj_dynamic, duration*ms, Ni=i)
+        ISI_current_on, ISI_current_off = get_on_off_isi(hidden_state, current_S, dt)
+        ISI_dynamic_on, ISI_dynamic_off = get_on_off_isi(hidden_state, dynamic_S, dt)
+        ISI['current_PC']['on'] = np.append(ISI['current_PC']['on'], ISI_current_on)
+        ISI['current_PC']['off'] = np.append(ISI['current_PC']['off'], ISI_current_off)
+        ISI['dynamic_PC']['on'] = np.append(ISI['dynamic_PC']['on'], ISI_dynamic_on)
+        ISI['dynamic_PC']['off'] = np.append(ISI['dynamic_PC']['off'], ISI_dynamic_off)
 
-        # Sanity Check:
+        # # Sanity Check:
         # plot_currentclamp(current_M, hidden_state, dt)
         # plot_dynamicclamp(dynamic_M, inj_dynamic[0], inj_dynamic[1], hidden_state, dt)
 
     # Interneurons, 
-    for i in range(8, 12):
-        current_IN.restore()
-        dynamic_IN.restore()
+    i = 11
+    current_IN.restore()
+    dynamic_IN.restore()
 
-        # Scale input
-        inj_current = scale_to_freq(current_IN, input_theory, target, on_off_ratio, 'current', duration, hidden_state, dt, i)
-        inj_dynamic = scale_to_freq(dynamic_IN, (g_exc, g_inh), target, on_off_ratio, 'dynamic', duration, hidden_state, dt, i)
+    # Scale input
+    inj_current = scale_to_freq(current_IN, input_theory, target, on_off_ratio, 'current', duration, hidden_state, dt, i)
+    inj_dynamic = scale_to_freq(dynamic_IN, (g_exc, g_inh), target, on_off_ratio, 'dynamic', duration, hidden_state, dt, i)
 
-        # inj_current = scale_input_theory(input_theory, baseline, current_scale, dt)
-        # inj_dynamic = scale_dynamic_input(g_exc, g_inh, dynamic_scale, dt)
+    # inj_current = scale_input_theory(input_theory, baseline, current_scale, dt)
+    # inj_dynamic = scale_dynamic_input(g_exc, g_inh, dynamic_scale, dt)
 
-        # Simulate and calculate
-        if inj_current != False and inj_dynamic != False:
-            current_M, current_S = current_PC.run(inj_current, duration*ms, Ni=i)
-            dynamic_M, dynamic_S = dynamic_PC.run(inj_dynamic, duration*ms, Ni=i)
-            ISI_current_on, ISI_current_off = get_on_off_isi(hidden_state, current_S, dt)
-            ISI_dynamic_on, ISI_dynamic_off = get_on_off_isi(hidden_state, dynamic_S, dt)
-            ISI['current_PC']['on'] = np.append(ISI['current_PC']['on'], ISI_current_on)
-            ISI['current_PC']['off'] = np.append(ISI['current_PC']['off'], ISI_current_off)
-            ISI['dynamic_PC']['on'] = np.append(ISI['dynamic_PC']['on'], ISI_dynamic_on)
-            ISI['dynamic_PC']['off'] = np.append(ISI['dynamic_PC']['off'], ISI_dynamic_off)
+    # Simulate and calculate
+    if inj_current != False and inj_dynamic != False:
+        current_M, current_S = current_IN.run(inj_current, duration*ms, Ni=i)
+        dynamic_M, dynamic_S = dynamic_IN.run(inj_dynamic, duration*ms, Ni=i)
+        ISI_current_on, ISI_current_off = get_on_off_isi(hidden_state, current_S, dt)
+        ISI_dynamic_on, ISI_dynamic_off = get_on_off_isi(hidden_state, dynamic_S, dt)
+        ISI['current_PC']['on'] = np.append(ISI['current_PC']['on'], ISI_current_on)
+        ISI['current_PC']['off'] = np.append(ISI['current_PC']['off'], ISI_current_off)
+        ISI['dynamic_PC']['on'] = np.append(ISI['dynamic_PC']['on'], ISI_dynamic_on)
+        ISI['dynamic_PC']['off'] = np.append(ISI['dynamic_PC']['off'], ISI_dynamic_off)
 
-        # Sanity Check:
-        plot_currentclamp(current_M, hidden_state, dt)
-        plot_dynamicclamp(dynamic_M, inj_dynamic[0], inj_dynamic[1], hidden_state, dt)
+        # # Sanity Check:
+        # plot_currentclamp(current_M, hidden_state, dt)
+        # plot_dynamicclamp(dynamic_M, inj_dynamic[0], inj_dynamic[1], hidden_state, dt)
 
-# # # Save ISI dictionary
-# np.save(f'results/saved/ISI_compare/ISI_IN.npy', ISI)
+# Save ISI dictionary
+np.save(f'results/saved/ISI_compare/ISI.npy', ISI)
 
 # Clear Brian2 cache
 try:
@@ -113,22 +112,20 @@ except:
     pass
 
 # # Plot
-# plot_ISI_compare(ISI)
-# print(ISI)
-fig, axs = plt.subplots(nrows=2, ncols=2, figsize=(10,10))
-sns.histplot(ISI['current_PC']['on'], ax=axs[0, 0], kde=True, kde_kws={'bw_adjust':2.5}, bins=50, color='red')
-sns.histplot(ISI['current_PC']['off'], ax=axs[0, 1], kde=True, kde_kws={'bw_adjust':2.5}, bins=50, color='salmon')
-sns.histplot(ISI['dynamic_PC']['on'], ax=axs[1, 0], kde=True, kde_kws={'bw_adjust':2.5}, bins=50, color='blue')
-sns.histplot(ISI['dynamic_PC']['off'], ax=axs[1, 1], kde=True, kde_kws={'bw_adjust':2.5}, bins=50, color='steelblue')
+# fig, axs = plt.subplots(nrows=2, ncols=2, figsize=(10,10))
+# sns.histplot(ISI['current_PC']['on'], ax=axs[0, 0], kde=True, kde_kws={'bw_adjust':2.5}, bins=50, color='red')
+# sns.histplot(ISI['current_PC']['off'], ax=axs[0, 1], kde=True, kde_kws={'bw_adjust':2.5}, bins=50, color='salmon')
+# sns.histplot(ISI['dynamic_PC']['on'], ax=axs[1, 0], kde=True, kde_kws={'bw_adjust':2.5}, bins=50, color='blue')
+# sns.histplot(ISI['dynamic_PC']['off'], ax=axs[1, 1], kde=True, kde_kws={'bw_adjust':2.5}, bins=50, color='steelblue')
 
-# axs[0, 0].set_yscale('log')
-# axs[0, 1].set_yscale('log')
-# axs[1, 0].set_yscale('log')
-# axs[1, 1].set_yscale('log')
+# # axs[0, 0].set_yscale('log')
+# # axs[0, 1].set_yscale('log')
+# # axs[1, 0].set_yscale('log')
+# # axs[1, 1].set_yscale('log')
 
-axs[0, 0].title.set_text('current ON')
-axs[0, 1].title.set_text('current OFF')
-axs[1, 0].title.set_text('dynamic ON')
-axs[1, 1].title.set_text('dynamic OFF')
-fig.suptitle('Pyramidal Cell ISI')
-plt.show()
+# axs[0, 0].title.set_text('current ON')
+# axs[0, 1].title.set_text('current OFF')
+# axs[1, 0].title.set_text('dynamic ON')
+# axs[1, 1].title.set_text('dynamic OFF')
+# fig.suptitle('Pyramidal Cell ISI')
+# plt.show()

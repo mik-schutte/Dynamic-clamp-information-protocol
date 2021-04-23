@@ -35,8 +35,12 @@ target = 12
 on_off_ratio = 1.5
 N_runs = (61, 22) # for all pyramidal and interneuron parameters
 
-on_off = {'on':[], 'off':[]}
-ISI = {'current_PC':on_off, 'dynamic_PC':on_off, 'current_IN':on_off, 'dynamic_IN':on_off}
+# Create ISI dict
+keys = ['current_PC', 'dynamic_PC', 'current_IN', 'dynamic_IN']
+ISI = dict.fromkeys(keys)
+for key in ISI.keys():
+    ISI[key] = {'on':[], 'off':[]}
+
 current_PC = Barrel_PC('current', dt)
 dynamic_PC = Barrel_PC('dynamic', dt)
 current_IN = Barrel_IN('current', dt)
@@ -47,7 +51,7 @@ current_IN.store()
 dynamic_IN.store()
 
 print('Running simulation') 
-for _ in range(20):
+for _ in range(5):
     # Generate input
     [g_exc, g_inh, input_theory, hidden_state] = make_dynamic_experiments(qon_qoff_type, baseline, amplitude_scaling, tau, factor_ron_roff, mean_firing_rate, sampling_rate, duration, dv)
     
@@ -93,17 +97,17 @@ for _ in range(20):
         dynamic_M, dynamic_S = dynamic_IN.run(inj_dynamic, duration*ms, Ni=i)
         ISI_current_on, ISI_current_off = get_on_off_isi(hidden_state, current_S, dt)
         ISI_dynamic_on, ISI_dynamic_off = get_on_off_isi(hidden_state, dynamic_S, dt)
-        ISI['current_PC']['on'] = np.append(ISI['current_PC']['on'], ISI_current_on)
-        ISI['current_PC']['off'] = np.append(ISI['current_PC']['off'], ISI_current_off)
-        ISI['dynamic_PC']['on'] = np.append(ISI['dynamic_PC']['on'], ISI_dynamic_on)
-        ISI['dynamic_PC']['off'] = np.append(ISI['dynamic_PC']['off'], ISI_dynamic_off)
+        ISI['current_IN']['on'] = np.append(ISI['current_IN']['on'], ISI_current_on)
+        ISI['current_IN']['off'] = np.append(ISI['current_IN']['off'], ISI_current_off)
+        ISI['dynamic_IN']['on'] = np.append(ISI['dynamic_IN']['on'], ISI_dynamic_on)
+        ISI['dynamic_IN']['off'] = np.append(ISI['dynamic_IN']['off'], ISI_dynamic_off)
 
         # # Sanity Check:
         # plot_currentclamp(current_M, hidden_state, dt)
         # plot_dynamicclamp(dynamic_M, inj_dynamic[0], inj_dynamic[1], hidden_state, dt)
 
 # Save ISI dictionary
-np.save(f'results/saved/ISI_compare/ISI.npy', ISI)
+np.save(f'results/saved/ISI_compare/ISI_test.npy', ISI)
 
 # Clear Brian2 cache
 try:

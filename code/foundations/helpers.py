@@ -39,13 +39,13 @@ def scale_to_freq(neuron, input_theory, target, on_off_ratio, clamp_type, durati
         raise ValueError('ClampType must be \'current\' or \'dynamic\'')
 
     freq_diff_list = []
-    scale_list = [1, 2.5, 5, 7.5, 10, 12.5, 15, 17.5, 20, 22.5, 25]
+    scale_list = [1, 2.5, 5, 7.5, 10, 12.5, 15, 17.5, 20, 22.5, 25, 27.5, 30, 32.5, 35, 37.5, 40]
     for idx, scale in enumerate(scale_list):
         neuron.restore()
 
         # Scale and run
         inj = scale_input_theory(input_theory, clamp_type, 0, scale, dt)
-        M, S = neuron.run(inj, duration*ms, Ni)
+        M, S, _ = neuron.run(inj, duration, Ni)
 
         # Compare against frequency target
         freq = S.num_spikes/(duration/1000)
@@ -56,17 +56,19 @@ def scale_to_freq(neuron, input_theory, target, on_off_ratio, clamp_type, durati
         spiketrain = make_spiketrain(S, hidden_state, dt)
         on_freq = get_on_freq(spiketrain, hidden_state, dt)
 
-        # Check if prior scale wasn't a better fit
-        if idx != 0 and freq_diff_list[idx-1] < freq_diff:
-            # Check for ON/OFF ratio
-            if on_freq != 0 and freq != 0 and on_freq/freq < on_off_ratio:
-                # print(f'FAILED: {clamp_type} ratio not met')
+        if idx != 0 and freq != 0:
+            # Check if prior scale wasn't a better fit
+            if freq_diff_list[idx-1] < freq_diff:
+                # Check for ON/OFF ratio
+                if on_freq != 0 and freq != 0 and on_freq/freq < on_off_ratio:
+                    # print(f'FAILED: {clamp_type} ratio not met')
+                    neuron.restore()
+                    return False
+
                 neuron.restore()
-                return False
-
-            neuron.restore()
-            return scale_input_theory(input_theory, clamp_type, 0, scale_list[idx-1], dt)
-
+                return scale_input_theory(input_theory, clamp_type, 0, scale_list[idx-1], dt)
+    
+    # When all scales have been tried
     # Check for ON/OFF ratio
     if on_freq/freq < on_off_ratio:
         # print(f'FAILED: {clamp_type} ratio not met')   
@@ -111,27 +113,36 @@ def scale_input_theory(input_theory, clamp_type, baseline, scale, dt):
 
     return inject_input
 
-def make_spiketrain(SpikeMon, hiddenstate, dt):
+def make_spiketrain(spikemon, duration, dt):
     ''' Generates a binary array that spans the whole simulation and 
         is 1 when a spike is fired.
     '''
-    spiketrain = np.zeros((1, hiddenstate.shape[0]))
-    spikeidx = np.array(SpikeMon.t/ms/dt, dtype=int)
+    spiketrain = np.zeros((1, int(duration/dt)))
+    if isinstance(spikemon, SpikeMonitor):
+        spikeidx = np.array(spikemon.t/ms/dt, dtype=int)
+    elif isinstance(spikemon, (np.ndarray, list)):
+        spikeidx = spikemon/dt
+        spikeidx = spikeidx.astype('int')
+    else:
+        TypeError('Please provide SpikeMonitor or array of spiketimes')
     spiketrain[:, spikeidx] = 1
     return spiketrain
 
-def get_spike_intervals(SpikeMon):
+def get_spike_intervals(spikemon):
     ''' Determine the interval between spikes in milliseconds. 
     '''
-    # Check
-    if not isinstance(SpikeMon, SpikeMonitor):
-        TypeError('No SpikeMonitor provided')
-        
     intervals = []
-    for i in range(len(SpikeMon.t)-1):
-        intervals.append(abs(SpikeMon.t[i+1] - SpikeMon.t[i])/ms)
+    # Check
+    if isinstance(spikemon, SpikeMonitor):
+        for i in range(len(spikemon.t)-1):
+            intervals.append(abs(spikemon.t[i+1] - spikemon.t[i])/ms)
+    elif isinstance(spikemon, (np.ndarray, list)):
+        for i in range(len(spikemon)-1):
+            intervals.append(abs(spikemon[i+1] - spikemon[i]))
+    else:
+        TypeError('Please provide SpikeMonitor or array of spiketimes')
     return intervals
-    
+
 
 def get_on_index(hidden_state):
     ''' Get the indexis where the hidden state is ON.
@@ -192,9 +203,15 @@ def get_on_freq(spiketrain, hidden_state, dt):
     on_duration = len(get_on_index(hidden_state))*dt*ms
     return (on_spike_count/on_duration)/Hz
 
-def get_on_off_isi(hidden_state, SpikeMon, dt):
-    ''' Docstring
+def get_on_off_isi(spikemon, hidden_state, dt):
+    ''' Get the ISI of the ON and OFF state.
+
+        OUPUT
+        ON_isi, OFF_isi
     '''
+    if isinstance(spikemon, SpikeMonitor):
+        spikemon = spikemon.t/ms
+
     # Get hidden state indexes where a switch of state occurred
     diff = np.diff(hidden_state)
     switches = np.array([-1])
@@ -218,7 +235,7 @@ def get_on_off_isi(hidden_state, SpikeMon, dt):
         block_spikes = []
         block_time = np.arange(block[0]*dt, block[1]*dt+dt, dt)
         for t in block_time:
-            if t in SpikeMon.t/ms:
+            if t in spikemon:
                 block_spikes.append(t)
         spikes_per_block[block[2]].append(block_spikes)
 

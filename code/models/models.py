@@ -190,7 +190,7 @@ class Barrel_PC:
         Vh_h = parameters[6][Ni]*b2.volt
         VT = -63*b2.mV
    
-        self.network.run(simulation_time)
+        self.network.run(simulation_time*b2.ms)
 
         return self.M, self.S
 
@@ -315,5 +315,5 @@ class Barrel_IN:
         Er_i = -75*b2.mV
         k = parameters[4][Ni]*b2.volt
         
-        self.network.run(simulation_time)
+        self.network.run(simulation_time*b2.ms)
         return self.M, self.S

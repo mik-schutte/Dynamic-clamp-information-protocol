@@ -45,7 +45,7 @@ def scale_to_freq(neuron, input_theory, target, on_off_ratio, clamp_type, durati
 
         # Scale and run
         inj = scale_input_theory(input_theory, clamp_type, 0, scale, dt)
-        M, S, _ = neuron.run(inj, duration, Ni)
+        M, S = neuron.run(inj, duration, Ni)
 
         # Compare against frequency target
         freq = S.num_spikes/(duration/1000)
@@ -53,7 +53,7 @@ def scale_to_freq(neuron, input_theory, target, on_off_ratio, clamp_type, durati
         freq_diff_list.append(freq_diff)
 
         # Compare against on_frequency target
-        spiketrain = make_spiketrain(S, hidden_state, dt)
+        spiketrain = make_spiketrain(S, duration, dt)
         on_freq = get_on_freq(spiketrain, hidden_state, dt)
 
         if idx != 0 and freq != 0:
@@ -61,7 +61,6 @@ def scale_to_freq(neuron, input_theory, target, on_off_ratio, clamp_type, durati
             if freq_diff_list[idx-1] < freq_diff:
                 # Check for ON/OFF ratio
                 if on_freq != 0 and freq != 0 and on_freq/freq < on_off_ratio:
-                    # print(f'FAILED: {clamp_type} ratio not met')
                     neuron.restore()
                     return False
 
@@ -71,7 +70,6 @@ def scale_to_freq(neuron, input_theory, target, on_off_ratio, clamp_type, durati
     # When all scales have been tried
     # Check for ON/OFF ratio
     if on_freq/freq < on_off_ratio:
-        # print(f'FAILED: {clamp_type} ratio not met')   
         neuron.restore()
         return False
 

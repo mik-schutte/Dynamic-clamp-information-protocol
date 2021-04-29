@@ -21,7 +21,7 @@ import matplotlib.pyplot as plt
 from foundations.dynamic_clamp import get_g0
 from foundations.input import Input
 
-def make_dynamic_experiments(qon_qoff_type, baseline, amplitude_scaling, tau, factor_ron_roff, mean_firing_rate, sampling_rate, duration, dv, seed=None):
+def make_dynamic_experiments(qon_qoff_type, baseline, tau, factor_ron_roff, mean_firing_rate, sampling_rate, duration, seed=None):
     ''' Make input current look up table (LUT) based on a artificial network responding
         to a hidden state.
 
@@ -89,10 +89,11 @@ def make_dynamic_experiments(qon_qoff_type, baseline, amplitude_scaling, tau, fa
     input_bayes.get_all()
     input_bayes.x = input_bayes.markov_hiddenstate()
 
-    #Generate exc and inh LUT
+    #Generate exc and inh
     g0_exc, g0_inh = get_g0(v_rest, input_bayes.w, Er_exc, Er_inh)
     g_exc = input_bayes.markov_input(g0_exc)
     g_inh = input_bayes.markov_input(g0_inh)
+    dynamic_theory = (g_exc, g_inh)
 
     #Generate input_current for comparison
     input_theory = input_bayes.markov_input()
@@ -114,4 +115,4 @@ def make_dynamic_experiments(qon_qoff_type, baseline, amplitude_scaling, tau, fa
     
     # plt.show()
 
-    return [g_exc, g_inh, input_theory, input_bayes.x]
+    return [input_theory, dynamic_theory, input_bayes.x]

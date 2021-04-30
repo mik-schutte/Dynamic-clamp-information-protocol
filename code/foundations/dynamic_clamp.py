@@ -32,19 +32,19 @@ def get_g0(v_rest, weights, Er_exc, Er_inh):
     #Get g0 and seperate in to inhibitory and excitatory conductance
     for i in range(N):
         if weights[i] > 0:
-            g0 = float(weights[i] / (-v_rest - Er_exc))
-            g0_exc_dict[i] = abs(g0)
+            g0 = float(weights[i] / (v_rest - Er_exc))
+            g0_exc_dict[i] = g0
         else: 
-            g0 = float(weights[i] / (-v_rest - Er_inh))
-            g0_inh_dict[i] = abs(g0)
+            g0 = float(weights[i] / (v_rest - Er_inh))
+            g0_inh_dict[i] = g0
 
-    # # Sanitycheck weights        
+    # # Sanitycheck weights equal I_inj when Vm = Vrest        
     # plt.hist(weights, bins=100, label='Weight', color='gold')
     # g0_exc = np.array(list(g0_exc_dict.values()))
-    # plt.hist(g0_exc*100, bins=100, label='Exc * 100', color='red')
+    # plt.hist(g0_exc*(v_rest - Er_exc), bins=50, label='I_Exc', color='red', alpha=0.75)
     # g0_inh = np.array(list(g0_inh_dict.values())) 
-    # plt.hist(np.negative(g0_inh*100), bins=100, label='Inh * 100', color='blue')
-    # plt.xlabel('weight or g0')
+    # plt.hist(g0_inh*(v_rest - Er_inh), bins=50, label='I_Inh', color='blue', alpha=0.75)
+    # plt.xlabel('Weight or I_syn')
     # plt.ylabel('freq')
     # plt.legend()
     # plt.show()

@@ -57,7 +57,7 @@ def make_dynamic_experiments(qon_qoff_type, baseline, tau, factor_ron_roff, mean
     ron = 1./(tau*(1+factor_ron_roff))
     roff = factor_ron_roff*ron
     v_rest = -65
-    Er_exc, Er_inh = (0, -90)
+    Er_exc, Er_inh = (0, -75)
 
     #Create input from artifical network
     input_bayes = Input()

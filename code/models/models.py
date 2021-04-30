@@ -111,8 +111,8 @@ class Barrel_PC:
             eqs_input = '''I_inj = inj_input(t) : amp'''
 
         elif self.clamp_type =='dynamic':
-            eqs_input = '''I_exc = g_exc(t) * (Er_e - v) : amp
-                    I_inh = g_inh(t) * (Er_i - v) : amp
+            eqs_input = '''I_exc = g_exc(t) * (v - Er_e) : amp
+                    I_inh = g_inh(t) * (v - Er_i) : amp
                     I_inj = I_exc + I_inh : amp'''
         tracking = ['v', 'I_inj']
         
@@ -126,9 +126,9 @@ class Barrel_PC:
             beta_n = (0.5 * exp((10. - v/mV + VT/mV) / 40.))/ms : Hz
             dn/dt = alpha_n * (1 - n) - beta_n * n : 1
 
-            I_leak = gL * (EL - v) : amp
-            I_Na = gNa * m**3 * h * (ENa - v) : amp
-            I_K = gK * n**4 * (EK - v) : amp
+            I_leak = -gL * (v - EL) : amp
+            I_Na = -gNa * m**3 * h * (v - ENa) : amp
+            I_K = -gK * n**4 * (v - EK) : amp
 
             dv/dt = (I_leak + I_Na + I_K + I_inj) / Cm : volt
             '''    

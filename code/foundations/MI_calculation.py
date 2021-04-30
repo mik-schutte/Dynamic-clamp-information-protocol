@@ -22,6 +22,7 @@
     MI          : mean-squared error between hidden state and hidden state estimate based on spike train
 '''
 import numpy as np
+import pandas as pd
 from scipy import stats, integrate
 
 def analyze_exp(ron, roff, x, input_theory, dt, theta, spiketrain): #TODO add spiketrain for additional calc
@@ -39,7 +40,7 @@ def analyze_exp(ron, roff, x, input_theory, dt, theta, spiketrain): #TODO add sp
     _, _, Output['MI'], L, Output['qon'], Output['qoff'] = calc_MI_ideal(ron, roff, spiketrain, x, dt)
     Output['xhatspikes'] = 1./(1 + np.exp(-L))
     Output['MSE'] = np.sum((x - Output['xhatspikes'])**2)
-    return Output
+    return pd.DataFrame.from_dict(Output, orient='index').T
 
 
 def dLdt_input(L, ron, roff, I, theta):

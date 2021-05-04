@@ -11,7 +11,7 @@ import numpy as np
 from brian2 import *
 from models.models import Barrel_PC, Barrel_IN
 
-def scale_to_freq(neuron, input_theory, target, on_off_ratio, clamp_type, duration, hidden_state, dt=0.5, Ni=None):
+def scale_to_freq(neuron, input_theory, target, on_all_ratio, clamp_type, duration, hidden_state, dt=0.5, Ni=None):
     ''' Scales the theoretical input to an input that results in target firing frequence 
         by running test simulations. 
 
@@ -19,7 +19,7 @@ def scale_to_freq(neuron, input_theory, target, on_off_ratio, clamp_type, durati
         neuron (Class): neuron model as found in models.py
         input_theory (array or tuple): theoretical input that has to be scaled; (g_exc, g_inh) if dynamic
         target (int): target frequency for the simulation
-        on_off_ratio (float): how much more does the neuron need to fire during the ON state
+        on_all_ratio (float): how much more does the neuron need to fire during the ON state
         clamp_type (str): 'current' or 'dynamic' 
         duration (int): duration of the simulation in miliseconds
         hidden_state (array): binary array representing the hidden state
@@ -39,7 +39,9 @@ def scale_to_freq(neuron, input_theory, target, on_off_ratio, clamp_type, durati
         raise ValueError('ClampType must be \'current\' or \'dynamic\'')
 
     freq_diff_list = []
-    scale_list = [1, 2.5, 5, 7.5, 10, 12.5, 15, 17.5, 20, 22.5, 25, 27.5, 30, 32.5, 35, 37.5, 40]
+    freq_list = []
+    on_freq_list = []
+    scale_list = np.append([1], np.arange(2.5, 302.5, 2.5))
     for idx, scale in enumerate(scale_list):
         neuron.restore()
 
@@ -49,27 +51,33 @@ def scale_to_freq(neuron, input_theory, target, on_off_ratio, clamp_type, durati
 
         # Compare against frequency target
         freq = S.num_spikes/(duration/1000)
+        freq_list.append(freq)
         freq_diff = abs(freq - target)
         freq_diff_list.append(freq_diff)
 
         # Compare against on_frequency target
         spiketrain = make_spiketrain(S, duration, dt)
         on_freq = get_on_freq(spiketrain, hidden_state, dt)
+        on_freq_list.append(on_freq)
 
-        if idx != 0 and freq != 0:
-            # Check if prior scale wasn't a better fit
-            if freq_diff_list[idx-1] < freq_diff:
-                # Check for ON/OFF ratio
-                if on_freq != 0 and freq != 0 and on_freq/freq < on_off_ratio:
-                    neuron.restore()
-                    return False
+        if freq > target and idx != 0:
+            # Check if prior or current scale is a better fit
+            if freq_diff_list[idx-1] <= freq_diff_list[idx]:
+                ideal = idx - 1
+            else:
+                ideal = idx
 
+            # Check ON/OFF ratio
+            if on_freq_list[ideal]/freq_list[ideal] >= on_all_ratio:
                 neuron.restore()
-                return scale_input_theory(input_theory, clamp_type, 0, scale_list[idx-1], dt)
-    
+                return scale_input_theory(input_theory, clamp_type, 0, scale_list[ideal], dt)
+            else:
+                neuron.restore()
+                return False
+     
     # When all scales have been tried
-    # Check for ON/OFF ratio
-    if on_freq/freq < on_off_ratio:
+    # Check for ON/All ratio
+    if on_freq/freq < on_all_ratio:
         neuron.restore()
         return False
 

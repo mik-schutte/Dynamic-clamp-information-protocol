@@ -33,6 +33,8 @@ qon_qoff_type = 'balanced'
 Er_exc, Er_inh = (0, -75)
 target = 12
 on_off_ratio = 1.5
+scale_list = np.append([1], np.arange(2.5, 302.5, 2.5))
+
 
 # Initiate Pyramidal cell models
 PC_i = 35
@@ -54,10 +56,10 @@ while succesful_runs < 10:
     [input_theory, dynamic_theory, hidden_state] = make_dynamic_experiments(qon_qoff_type, baseline, tau_PC, factor_ron_roff, mean_firing_rate_PC, sampling_rate, duration_PC)
 
     # Scale input and Check
-    inj_current = scale_to_freq(current_PC, input_theory, target, on_off_ratio, 'current', duration_PC, hidden_state, dt, PC_i)
+    inj_current = scale_to_freq(current_PC, input_theory, target, on_off_ratio, 'current', duration_PC, hidden_state, scale_list, dt, PC_i)
     if inj_current == False:
         continue
-    inj_dynamic = scale_to_freq(dynamic_PC, dynamic_theory, target, on_off_ratio, 'dynamic', duration_PC, hidden_state, dt, PC_i)
+    inj_dynamic = scale_to_freq(dynamic_PC, dynamic_theory, target, on_off_ratio, 'dynamic', duration_PC, hidden_state, scale_list, dt, PC_i)
     if inj_dynamic == False:
         continue
         
@@ -100,10 +102,10 @@ while succesful_runs < 10:
     [input_theory, dynamic_theory, hidden_state] = make_dynamic_experiments(qon_qoff_type, baseline, tau_IN, factor_ron_roff, mean_firing_rate_IN, sampling_rate, duration_IN)
 
     # Scale input and check
-    inj_current = scale_to_freq(current_IN, input_theory, target, on_off_ratio, 'current', duration_IN, hidden_state, dt, IN_i)
+    inj_current = scale_to_freq(current_IN, input_theory, target, on_off_ratio, 'current', duration_IN, hidden_state, scale_list, dt, IN_i)
     if inj_current == False:
         continue
-    inj_dynamic = scale_to_freq(dynamic_IN, dynamic_theory, target, on_off_ratio, 'dynamic', duration_IN, hidden_state, dt, IN_i)
+    inj_dynamic = scale_to_freq(dynamic_IN, dynamic_theory, target, on_off_ratio, 'dynamic', duration_IN, hidden_state, scale_list, dt, IN_i)
     if inj_dynamic == False: 
         continue
 

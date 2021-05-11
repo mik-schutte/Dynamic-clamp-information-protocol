@@ -11,7 +11,7 @@ import numpy as np
 from brian2 import *
 from models.models import Barrel_PC, Barrel_IN
 
-def scale_to_freq(neuron, input_theory, target, on_all_ratio, clamp_type, duration, hidden_state, dt=0.5, Ni=None):
+def scale_to_freq(neuron, input_theory, target, on_all_ratio, clamp_type, duration, hidden_state, scale_list, dt=0.5, Ni=None):
     ''' Scales the theoretical input to an input that results in target firing frequence 
         by running test simulations. 
 
@@ -37,11 +37,13 @@ def scale_to_freq(neuron, input_theory, target, on_all_ratio, clamp_type, durati
         raise TypeError('Please insert a neuron class')
     if clamp_type != 'current' and clamp_type != 'dynamic':
         raise ValueError('ClampType must be \'current\' or \'dynamic\'')
+    if len(input_theory) != len(hidden_state):
+        raise  AssertionError('Input and hidden state don\'t correspond')
 
-    freq_diff_list = []
-    freq_list = []
-    on_freq_list = []
-    scale_list = np.append([1], np.arange(2.5, 302.5, 2.5))
+    freq_diff_list = []  # Containing the difference between target and actual frequency
+    freq_list = []       # Containing the actual frequencies
+    on_freq_list = []    # Containing the frequency during ON-state
+
     for idx, scale in enumerate(scale_list):
         neuron.restore()
 
@@ -103,20 +105,13 @@ def scale_input_theory(input_theory, clamp_type, baseline, scale, dt):
         inject_input = TimedArray(scaled_input, dt=dt*ms)
 
     elif clamp_type == 'dynamic':
-        # base_exc, base_inh = baseline
-        # Check for correct input
-        # try: 
         g_exc, g_inh = input_theory
-        # base_exc = np.ones_like(g_exc, dtype=float)*base_exc
-        # base_inh = np.ones_like(g_inh, dtype=float)*base_inh
         g_exc = (baseline + g_exc * scale)*mS
         g_inh = (baseline + g_inh * scale)*mS
         g_exc = TimedArray(g_exc, dt=dt*ms)
         g_inh = TimedArray(g_inh, dt=dt*ms)
         inject_input = (g_exc, g_inh)
-        # except: 
-            # ValueError('For scaling of dynamic theory insert (g_exc, g_inh).')
-
+       
     return inject_input
 
 def make_spiketrain(spikemon, duration, dt):
@@ -217,7 +212,8 @@ def get_on_off_isi(spikemon, hidden_state, dt):
     '''
     if isinstance(spikemon, SpikeMonitor):
         spikemon = spikemon.t/ms
-
+    spikemon = np.round(spikemon, 2)
+    
     # Get hidden state indexes where a switch of state occurred
     diff = np.diff(hidden_state)
     switches = np.array([-1])
@@ -241,6 +237,7 @@ def get_on_off_isi(spikemon, hidden_state, dt):
         block_spikes = []
         block_time = np.arange(block[0]*dt, block[1]*dt+dt, dt)
         for t in block_time:
+            t = np.round(t, 2)
             if t in spikemon:
                 block_spikes.append(t)
         spikes_per_block[block[2]].append(block_spikes)

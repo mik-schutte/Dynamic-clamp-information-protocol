@@ -107,7 +107,7 @@ for _ in range(5):
         # plot_dynamicclamp(dynamic_M, inj_dynamic[0], inj_dynamic[1], hidden_state, dt)
 
 # Save ISI dictionary
-np.save(f'results/saved/ISI_compare/ISI_test.npy', ISI)
+# np.save(f'results/saved/ISI_compare/ISI_test.npy', ISI)
 
 # Clear Brian2 cache
 try:

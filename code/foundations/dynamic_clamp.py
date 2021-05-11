@@ -19,7 +19,7 @@ def get_g0(v_rest, weights, Er_exc, Er_inh):
               [g0_exc_dict, g0_inh_dict]: dictionaries of 'base' conductances with 
                                           neuron index as key.
 
-        Base conductance: value where g0 * (Vrest - Er) = weight.
+        Base conductance: value where g0 * (Er - v_rest) = weight.
         The reversal potential (Er) is based on A. Destexhe, M. Rudolph, J.M. Fellous 
         & T.J. Sejnowski (2001). 
     '''
@@ -32,18 +32,18 @@ def get_g0(v_rest, weights, Er_exc, Er_inh):
     #Get g0 and seperate in to inhibitory and excitatory conductance
     for i in range(N):
         if weights[i] > 0:
-            g0 = float(weights[i] / (v_rest - Er_exc))
-            g0_exc_dict[i] = g0
+            g0 = float(weights[i] / (Er_exc - v_rest))
+            g0_exc_dict[i] = abs(g0)
         else: 
-            g0 = float(weights[i] / (v_rest - Er_inh))
-            g0_inh_dict[i] = g0
+            g0 = float(weights[i] / (Er_inh - v_rest))
+            g0_inh_dict[i] = abs(g0)
 
     # # Sanitycheck weights equal I_inj when Vm = Vrest        
     # plt.hist(weights, bins=100, label='Weight', color='gold')
     # g0_exc = np.array(list(g0_exc_dict.values()))
-    # plt.hist(g0_exc*(v_rest - Er_exc), bins=50, label='I_Exc', color='red', alpha=0.75)
+    # plt.hist(g0_exc*(Er_exc - v_rest), bins=50, label='I_Exc', color='red', alpha=0.75)
     # g0_inh = np.array(list(g0_inh_dict.values())) 
-    # plt.hist(g0_inh*(v_rest - Er_inh), bins=50, label='I_Inh', color='blue', alpha=0.75)
+    # plt.hist(g0_inh*(Er_inh - v_rest), bins=50, label='I_Inh', color='blue', alpha=0.75)
     # plt.xlabel('Weight or I_syn')
     # plt.ylabel('freq')
     # plt.legend()

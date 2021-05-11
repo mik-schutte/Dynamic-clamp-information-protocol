@@ -111,8 +111,8 @@ class Barrel_PC:
             eqs_input = '''I_inj = inj_input(t) : amp'''
 
         elif self.clamp_type =='dynamic':
-            eqs_input = '''I_exc = g_exc(t) * (v - Er_e) : amp
-                    I_inh = g_inh(t) * (v - Er_i) : amp
+            eqs_input = '''I_exc = g_exc(t) * (Er_e - v) : amp
+                    I_inh = g_inh(t) * (Er_i - v) : amp
                     I_inj = I_exc + I_inh : amp'''
         tracking = ['v', 'I_inj']
         
@@ -224,29 +224,29 @@ class Barrel_IN:
             eqs_input = '''I_inj = inj_input(t) : amp'''
 
         elif self.clamp_type =='dynamic':
-            eqs_input = '''I_exc = g_exc(t) * (v - Er_e) : amp
-                    I_inh = g_inh(t) * (v - Er_i) : amp
+            eqs_input = '''I_exc = g_exc(t) * (Er_e - v) : amp
+                    I_inh = g_inh(t) * (Er_i - v) : amp
                     I_inj = I_exc + I_inh : amp'''
         tracking = ['v', 'I_inj']
         
         # Model the neuron with differential equations
         eqs = '''
                 # Activation gates Na channel
-                m = 1. / (1 + exp(-(v - Vh) / k)) : 1
+                m = 1. / (1. + exp(-(v - Vh) / k)) : 1
                 Vh = 3.223725 * k - 62.615488*mV : volt
 
                 # Inactivation gates Na channel
                 dh/dt = 5. * (alpha_h * (1 - h)- beta_h * h) : 1
                 alpha_h = 0.07 * exp(-(v + 58.*mV) / (20.*mV))/ms : Hz
-                beta_h = 1. / (exp(-0.1/mV * (v + 28.*mV)) + 1)/ms : Hz
+                beta_h = 1. / (exp(-0.1/mV * (v + 28.*mV)) + 1.)/ms : Hz
 
                 # Activation gates K channel
-                dn/dt = 5. * (alpha_n * (1 - n) - beta_n * n) : 1
+                dn/dt = 5. * (alpha_n * (1. - n) - beta_n * n) : 1
                 alpha_n = 0.01/mV * 10*mV / exprel(-(v + 34.*mV) / (10.*mV))/ms : Hz
                 beta_n = 0.125 * exp(-(v + 44.*mV) / (80.*mV))/ms : Hz
 
                 # Activation gates K3.1 channel
-                dn3/dt = alphan3 * (1 - n3) - betan3 * n3 : 1
+                dn3/dt = alphan3 * (1. - n3) - betan3 * n3 : 1
                 alphan3 = (1. / exp(((param * ((-0.029 * v + (1.9*mV))/mV)))))/ms : Hz
                 betan3 = (1. / exp(((param * ((0.021 * v + (1.1*mV))/mV)))))/ms : Hz
 

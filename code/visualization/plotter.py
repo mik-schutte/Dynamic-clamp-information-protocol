@@ -10,38 +10,75 @@ import seaborn as sns
 import scipy.stats as stats
 from brian2.units.stdunits import mV, ms, mS, uA, nA, namp
 
-def plot_dynamicclamp(statemon, g_exc, g_inh, hiddenstate, dt):
+def plot_dynamicclamp(inj_dynamic, voltage, hidden_state, dt, window=None):
     '''Plots the injected conductance and voltage trace.
+
+       INPUT
+       window = [start:stop] in ms
     '''
+    g_exc, g_inh = inj_dynamic
+
+    # Check
+    if window:
+        start, stop = window
+        g_exc = g_exc[start:stop]
+        g_inh = g_inh[start:stop]
+        voltage = voltage[start:stop]
+        hidden_state = hidden_state[start:stop]
+        time = np.arange(start, stop)
+        dt = 1
+    else:
+        start = 0
+        time = np.arange(start, len(hidden_state))*dt
+
+    # Plot
     fig, axs = plt.subplots(3, figsize=(12,12))
     fig.suptitle('Dynamic Clamp')
-    axs[0].plot(statemon.t/ms, g_exc(statemon.t)/mS, c='red')
+    for idx, val in enumerate(hidden_state):
+        idx += start
+        if val == 1:
+            axs[0].axvline(idx*dt, c='lightgray')
+            axs[1].axvline(idx*dt, c='lightgray')
+            axs[2].axvline(idx*dt, c='lightgray')
+
+    axs[0].plot(time, abs(g_exc), c='red')
     axs[0].set(ylabel='Exc. conductance [mS]')
 
-    axs[1].plot(statemon.t/ms, g_inh(statemon.t)/mS, c='blue')
+    axs[1].plot(time, abs(g_inh), c='blue')
     axs[1].set(ylabel='Inh. conductance [mS]')
 
-    for idx, val in enumerate(hiddenstate):
-        if val == 1:
-            axs[2].axvline(idx*dt, c='lightgray')
-    axs[2].plot(statemon.t/ms, statemon.v[0].T/mV, c='black')
+    axs[2].plot(time, voltage, c='black')
     axs[2].set(ylabel='Voltage [mV]', xlabel='Time [ms]')
     plt.show()
     return
 
 
-def plot_currentclamp(statemon, hiddenstate, dt):
+def plot_currentclamp(inj_current, voltage, hidden_state, dt, window=None):
     '''Plots the injected current and voltage trace
     '''
+    # Check
+    if window:
+        start, stop = window
+        inj_current = inj_current[start:stop]
+        voltage = voltage[start:stop]
+        hidden_state = hidden_state[start:stop]
+        time = np.arange(start, stop)
+        dt = 1
+    else:
+        start = 0
+        time = np.arange(start, len(hidden_state))*dt
+
     fig, axs = plt.subplots(2, figsize=(12,12))
     fig.suptitle('Current Clamp')
-    axs[0].plot(statemon.t/ms, statemon.I_inj[0]/uA, c='red')
-    axs[0].set(ylabel='Input current [uA]')
-
-    for idx, val in enumerate(hiddenstate):
+    for idx, val in enumerate(hidden_state):
+        idx += start
         if val == 1:
+            axs[0].axvline(idx*dt, c='lightgray')
             axs[1].axvline(idx*dt, c='lightgray')
-    axs[1].plot(statemon.t/ms, statemon.v[0].T/mV, c='black')
+    axs[0].plot(time, inj_current, c='red')
+    axs[0].set(ylabel='Input current [uA]')
+  
+    axs[1].plot(time, voltage, c='black')
     axs[1].set(ylabel='Voltage [mV]', xlabel='Time [ms]')
     plt.show()
     return
@@ -103,9 +140,9 @@ def plot_clampcell_MI(MI_data):
 
     ## Make bars
     b1 = ax.bar(x, height=current_means, label='Current Clamp', yerr=current_sem, capsize=4,
-    color='blue', width=bar_width, edgecolor='black')
+    color= ['red','blue'], width=bar_width, edgecolor='black')
     b2 = ax.bar(x + bar_width, height=dynamic_means, label='Dynamic Clamp', yerr=dynamic_sem, capsize=4,
-    color='green', width=bar_width, edgecolor='black')
+    color= ['lightcoral', 'royalblue'], width=bar_width, edgecolor='black')
 
     ## Fix x-axis
     ax.set_xticks(x + bar_width/2)

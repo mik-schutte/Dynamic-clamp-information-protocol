@@ -257,33 +257,42 @@ def plot_scaling_compare(pathorlist):
     else: 
         raise AssertionError('Input should be a path to the saved .npy files or [PC_results, IN_results].')
 
-
-    scale_array = dynamic_dict['I'].keys()
+    scale_array = dynamic_dict['PC']['I'].keys()
     N = len(scale_array)
     x = np.arange(N+1)
 
-    fig, axs = plt.subplots(ncols=3, figsize=(10,10))
-    plot_special(axs[0], current_dict['I'], -5, 5, label='current')
-    plot_special(axs[1], current_dict['Vm'], -100, -40, label='current')
-    axs[2].bar(x[0], np.mean(current_dict['f']), label='current', yerr=np.std(current_dict['f']/N),
-                capsize=4)
+    fig, axs = plt.subplots(ncols=3, figsize=(15,8))
 
-    for idx, scale in enumerate(scale_array):
-        plot_special(axs[0], dynamic_dict['I'][scale], -5, 5, label='dynamic' + str( scale))
-        plot_special(axs[1], dynamic_dict['Vm'][scale], -100, -40, label='dynamic' + str( scale))
-        axs[2].bar(x[idx+1], height=np.mean(dynamic_dict['f'][scale]), label='dynamic' + str( scale), 
-        yerr=np.std(dynamic_dict['f'][scale])/N)
-        
-        #plot_special(axs[2], dynamic_dict['fdiff'][scale], label='dynamic' + str( scale))
-    axs[0].set(xlabel='Input Current[uA]', ylabel='density')
-    axs[0].title.set_text('Injected current')
-    axs[1].set(xlabel='Membrane potential [mV]')
-    axs[1].title.set_text('Membrane potential')
-    axs[2].set(xticks=[], ylabel='Frequency [Hz]')
-    axs[2].title.set_text('Firing frequency')
-    fig.suptitle('Dynamic scaling effect on')
+    # I 
+    sns.scatterplot(x=scale_array, y=[np.mean(i) for i in current_dict['PC']['I'].values()], color='red', s=125, marker='^', ax=axs[0])
+    sns.scatterplot(x=scale_array, y=[np.mean(i) for i in dynamic_dict['PC']['I'].values()], color='lightcoral', s=100, marker='d', ax=axs[0])
+    sns.scatterplot(x=scale_array, y=[np.mean(i) for i in current_dict['IN']['I'].values()], color='blue', s=100, marker='p', ax=axs[0])
+    sns.scatterplot(x=scale_array, y=[np.mean(i) for i in dynamic_dict['IN']['I'].values()], color='royalblue', s=90, marker='o', ax=axs[0])
+    # Vm
+    sns.scatterplot(x=scale_array, y=[np.mean(i) for i in current_dict['PC']['Vm'].values()], color='red', s=100, marker='^', ax=axs[1])
+    sns.scatterplot(x=scale_array, y=[np.mean(i) for i in dynamic_dict['PC']['Vm'].values()], color='lightcoral', s=100, marker='d', ax=axs[1])
+    sns.scatterplot(x=scale_array, y=[np.mean(i) for i in current_dict['IN']['Vm'].values()], color='blue', s=100, marker='p', ax=axs[1])
+    sns.scatterplot(x=scale_array, y=[np.mean(i) for i in dynamic_dict['IN']['Vm'].values()], color='royalblue', s=90, marker='o', ax=axs[1])
+    # F
+    sns.scatterplot(x=scale_array, y=[np.mean(i) for i in current_dict['PC']['f'].values()], color='red', s=100, marker='^', ax=axs[2], label='Current, PC')
+    sns.scatterplot(x=scale_array, y=[np.mean(i) for i in dynamic_dict['PC']['f'].values()], color='lightcoral', s=100, marker='d', ax=axs[2], label='Dynamic, PC')
+    sns.scatterplot(x=scale_array, y=[np.mean(i) for i in current_dict['IN']['f'].values()], color='blue', s=100, marker='p', ax=axs[2], label='Current, IN')
+    sns.scatterplot(x=scale_array, y=[np.mean(i) for i in dynamic_dict['IN']['f'].values()], color='royalblue', s=90, marker='o', ax=axs[2], label='Dynamic, IN')
+
     plt.legend()
+    axs[0].set(ylabel='Input Current[uA]')
+    axs[0].title.set_text('Injected current')
+    axs[1].set(ylabel='Membrane potential [mV]', xlabel='scale')
+    axs[1].title.set_text('Membrane potential')
+    axs[2].set(ylabel='Frequency [Hz]',  xlabel='scale')
+    axs[2].title.set_text('Firing frequency')
+
+    fig.suptitle('Scaling effect')
+    plt.legend(['Current, PC', 'Dynamic, PC', 'Current, IN', 'Dynamic, IN'])
+    axs[2].axhline(y=1.4233, c='red')
+    axs[2].axhline(y=6.6397, c='blue')
     plt.show()
+
 
 def plot_ISI_compare(pathordict):
     '''docstring

@@ -37,9 +37,13 @@ def scale_to_freq(neuron, input_theory, target, on_all_ratio, clamp_type, durati
         raise TypeError('Please insert a neuron class')
     if clamp_type != 'current' and clamp_type != 'dynamic':
         raise ValueError('ClampType must be \'current\' or \'dynamic\'')
-    if len(input_theory) != len(hidden_state):
-        raise  AssertionError('Input and hidden state don\'t correspond')
-
+    if clamp_type == 'current':
+        if len(input_theory) != len(hidden_state):
+            raise  AssertionError('Input and hidden state don\'t correspond')
+    elif clamp_type == 'dynamic':
+        if len(input_theory[0]) != len(hidden_state):
+            raise  AssertionError('Input and hidden state don\'t correspond')
+    
     freq_diff_list = []  # Containing the difference between target and actual frequency
     freq_list = []       # Containing the actual frequencies
     on_freq_list = []    # Containing the frequency during ON-state
@@ -72,6 +76,7 @@ def scale_to_freq(neuron, input_theory, target, on_all_ratio, clamp_type, durati
             # Check ON/OFF ratio
             if on_freq_list[ideal]/freq_list[ideal] >= on_all_ratio:
                 neuron.restore()
+                print(scale_list[ideal], freq_list[ideal])
                 return scale_input_theory(input_theory, clamp_type, 0, scale_list[ideal], dt)
             else:
                 neuron.restore()
@@ -84,6 +89,7 @@ def scale_to_freq(neuron, input_theory, target, on_all_ratio, clamp_type, durati
         return False
 
     neuron.restore()
+    print(scale_list[-1], freq_list[-1])
     return scale_input_theory(input_theory, clamp_type, 0, scale_list[-1], dt)
     
 def scale_input_theory(input_theory, clamp_type, baseline, scale, dt):

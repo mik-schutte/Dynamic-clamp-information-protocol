@@ -32,11 +32,8 @@ sampling_rate = 5
 dt = 1/sampling_rate 
 qon_qoff_type = 'balanced'
 Er_exc, Er_inh = (0, -75)
-target_PC = 1.4233
-target_IN = 6.6397
-on_off_ratio = 1.5
-scale_list = np.append([1], np.arange(2.5, 302.5, 2.5))
-scales = {'CC_PC':20, 'DC_PC':30, 'CC_IN':22.5, 'DC_IN':7.5}
+scales = {'CC_PC':19, 'DC_PC':30, 'CC_IN':17, 'DC_IN':6}
+N_runs = 20
 
 
 # Initiate Pyramidal cell models
@@ -53,7 +50,7 @@ vars_to_track = ['input_theory', 'dynamic_theory', 'hidden_state',
 results_PC = pd.DataFrame(columns=vars_to_track)
 
 # Pyramidal Cell simulation
-for _ in range(15):
+for _ in range(N_runs):
     # Make input theory and hidden state for Pyramidal Cell
     [input_theory, dynamic_theory, hidden_state] = make_dynamic_experiments(qon_qoff_type, baseline, tau_PC, factor_ron_roff, mean_firing_rate_PC, sampling_rate, duration_PC)
 
@@ -83,7 +80,7 @@ except:
 # Initiate Interneuron models
 IN_i = 11
 current_IN = Barrel_IN('current', dt=dt)
-dynamic_IN = Barrel_PC('dynamic', dt=dt)
+dynamic_IN = Barrel_IN('dynamic', dt=dt)
 current_IN.store()
 dynamic_IN.store()
 
@@ -91,7 +88,7 @@ dynamic_IN.store()
 results_IN = pd.DataFrame(columns=vars_to_track)
 
 # Interneuron simulation
-for _ in range(15):
+for _ in range(N_runs):
     # Make iput theory and hidden state for interneurons
     [input_theory, dynamic_theory, hidden_state] = make_dynamic_experiments(qon_qoff_type, baseline, tau_IN, factor_ron_roff, mean_firing_rate_IN, sampling_rate, duration_IN)
 
@@ -113,8 +110,8 @@ for _ in range(15):
     results_IN = results_IN.append(data, ignore_index=True)
 
 # Save data
-results_PC.to_pickle('results/results_PC2.pkl')
-results_IN.to_pickle('results/results_IN2.pkl')
+results_PC.to_pickle('results/results_PC.pkl')
+results_IN.to_pickle('results/results_IN.pkl')
 
 # Clean cache
 try:

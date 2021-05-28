@@ -76,7 +76,6 @@ def scale_to_freq(neuron, input_theory, target, on_all_ratio, clamp_type, durati
             # Check ON/OFF ratio
             if on_freq_list[ideal]/freq_list[ideal] >= on_all_ratio:
                 neuron.restore()
-                print(scale_list[ideal], freq_list[ideal])
                 return scale_input_theory(input_theory, clamp_type, 0, scale_list[ideal], dt)
             else:
                 neuron.restore()
@@ -89,7 +88,6 @@ def scale_to_freq(neuron, input_theory, target, on_all_ratio, clamp_type, durati
         return False
 
     neuron.restore()
-    print(scale_list[-1], freq_list[-1])
     return scale_input_theory(input_theory, clamp_type, 0, scale_list[-1], dt)
     
 def scale_input_theory(input_theory, clamp_type, baseline, scale, dt):
@@ -124,7 +122,7 @@ def make_spiketrain(spikemon, duration, dt):
     ''' Generates a binary array that spans the whole simulation and 
         is 1 when a spike is fired.
     '''
-    spiketrain = np.zeros((1, int(duration/dt)))
+    spiketrain = np.zeros((1, int(duration/dt)), dtype=int)
     if isinstance(spikemon, SpikeMonitor):
         spikeidx = np.array(spikemon.t/ms/dt, dtype=int)
     elif isinstance(spikemon, (np.ndarray, list)):

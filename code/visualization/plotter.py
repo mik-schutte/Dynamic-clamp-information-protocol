@@ -14,7 +14,7 @@ def plot_dynamicclamp(inj_dynamic, voltage, hidden_state, dt, window=None):
     '''Plots the injected conductance and voltage trace.
 
        INPUT
-       window = [start:stop] in ms
+       window = [start, stop] in ms
     '''
     g_exc, g_inh = inj_dynamic
 
@@ -278,6 +278,7 @@ def plot_scaling_compare(pathorlist):
     sns.scatterplot(x=scale_array, y=[np.mean(i) for i in dynamic_dict['PC']['f'].values()], color='lightcoral', s=100, marker='d', ax=axs[2], label='Dynamic, PC')
     sns.scatterplot(x=scale_array, y=[np.mean(i) for i in current_dict['IN']['f'].values()], color='blue', s=100, marker='p', ax=axs[2], label='Current, IN')
     sns.scatterplot(x=scale_array, y=[np.mean(i) for i in dynamic_dict['IN']['f'].values()], color='royalblue', s=90, marker='o', ax=axs[2], label='Dynamic, IN')
+    # plt.plot(scale_array,[np.mean(i) for i in dynamic_dict['IN']['f'].values()])
 
     plt.legend()
     axs[0].set(ylabel='Input Current[uA]')

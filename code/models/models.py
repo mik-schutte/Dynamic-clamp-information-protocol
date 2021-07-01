@@ -167,7 +167,7 @@ class Barrel_PC:
         '''
         # Neuron parameters
         ## Pick a random set of parameters
-        parameters = np.loadtxt('parameters/PC_parameters.csv', delimiter=',')
+        parameters = np.loadtxt('code/models/parameters/PC_parameters.csv', delimiter=',')
         if Ni == None:
             Ni = np.random.randint(np.shape(parameters)[1])
         
@@ -292,7 +292,7 @@ class Barrel_IN:
         '''
         # Neuron parameters
         ## Pick a random set of parameters
-        parameters = np.loadtxt('parameters/IN_parameters.csv', delimiter=',')
+        parameters = np.loadtxt('code/models/parameters/IN_parameters.csv', delimiter=',')
 
         if Ni == None:
             Ni = np.random.randint(np.shape(parameters)[1])

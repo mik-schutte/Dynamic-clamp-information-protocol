@@ -3,10 +3,5 @@ code/__pycache__/
 .pytest_cache/
 .vscode
 .ipynb_checkpoints
-
-test.py
-results/*
-neuron_model.ipynb
-get_parameters.ipynb
-
-
+other
+code/simulations

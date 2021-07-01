@@ -1,34 +1,38 @@
-'''
-    MI_calculation.py
-    Analyze data from MI experiment
+''' MI_calculation.py
+    File containing the functions to estimate the mutual information betweem the hidden state, input and 
+    output spike train. 
+
+    Described in:
     Zeldenrust, F., de Knecht, S., Wadman, W. J., Denève, S., Gutkin, B., Knecht, S. De, Denève, S. (2017). 
     Estimating the Information Extracted by a Single Spiking Neuron from a Continuous Input Time Series. 
     Frontiers in Computational Neuroscience, 11(June), 49. doi:10.3389/FNCOM.2017.00049
     Please cite this reference when using this method.
-    INPUT:
-    ron, roff (kHz): switching speed of the hidden state
-    x: array with hidden state values over time
-    input_theory: array with unscaled input current values (output from ANN)
-    dt: binsize recordings (ms)
-    spiketrain: array (same size as x and input_theory) of 0 (no spike) and 1 (spike)
-    OUTPUT
-    Output-dictionary with keys: #TODO the spiketrain stuff
-    MI_i        : mutual information between hidden state and input current
-    xhat_i      : array with hidden state estimate based on input current 
-    MSE_i       : mean-squared error between hidden state and hidden state estimate based on input current 
-    MI          : mutual information between hidden state and spike train
-    qon, qoff   : spike frequency during on, off state in spike train 
-    xhatspikes  : array with hidden state estimate based on spike train
-    MI          : mean-squared error between hidden state and hidden state estimate based on spike train
 '''
 import numpy as np
 import pandas as pd
 from scipy import stats, integrate
 
-def analyze_exp(ron, roff, x, input_theory, dt, theta, spiketrain): #TODO add spiketrain for additional calc
+def analyze_exp(ron, roff, x, input_theory, dt, theta, spiketrain): 
     ''' Analyzes the the hidden state and the input that was created by the ANN to
         create the Output dictionary.
         Equations 13 & 14
+
+        INPUT:
+        ron, roff (kHz): switching speed of the hidden state
+        x: array with hidden state values over time
+        input_theory: array with unscaled input current values (output from ANN)
+        dt: binsize recordings (ms)
+        spiketrain: array (same size as x and input_theory) of 0 (no spike) and 1 (spike)
+
+        OUTPUT
+        Output-dictionary with keys:
+        MI_i        : mutual information between hidden state and input current
+        xhat_i      : array with hidden state estimate based on input current 
+        MSE_i       : mean-squared error between hidden state and hidden state estimate based on input current 
+        MI          : mutual information between hidden state and spike train
+        qon, qoff   : spike frequency during on, off state in spike train 
+        xhatspikes  : array with hidden state estimate based on spike train
+        MI          : mean-squared error between hidden state and hidden state estimate based on spike train
     '''
     Output = {}
     # Input
@@ -40,6 +44,7 @@ def analyze_exp(ron, roff, x, input_theory, dt, theta, spiketrain): #TODO add sp
     _, _, Output['MI'], L, Output['qon'], Output['qoff'] = calc_MI_ideal(ron, roff, spiketrain, x, dt)
     Output['xhatspikes'] = 1./(1 + np.exp(-L))
     Output['MSE'] = np.sum((x - Output['xhatspikes'])**2)
+
     return pd.DataFrame.from_dict(Output, orient='index').T
 
 
@@ -49,12 +54,14 @@ def dLdt_input(L, ron, roff, I, theta):
         Equation 10.
     '''        
     dLdt = ron * (1. + np.exp(-L)) - roff * (1. + np.exp(L)) + I - theta
+
     return dLdt
 
 
 def dLdt_spikes(L, ron, roff, I, w, theta):
     'docstring'
     dLdt = ron * (1. + np.exp(-L)) - roff * (1. + np.exp(L)) + w*I - theta
+
     return dLdt
 
 
@@ -73,6 +80,7 @@ def MI_est(L, x):
     Hxx = - np.mean(x) * np.log2(np.mean(x)) - (1 - np.mean(x)) * np.log2(1 - np.mean(x))
     Hxy = - np.mean(x * np.log2(p_conditional(L)) + (1 - x) * np.log2(1 - p_conditional(L)))
     MI = Hxx - Hxy
+
     return Hxx, Hxy, MI
 
 
@@ -94,6 +102,7 @@ def calc_MI_input(ron, roff, I, theta, x, dt):
 
     # Calculate the Mutual Information
     Hxx, Hxy, MI = MI_est(L, x)
+
     return [Hxx, Hxy, MI, L]
 
 
@@ -129,6 +138,7 @@ def calc_MI_ideal(ron, roff, spiketrain, x, dt):
     
     # Calculate MI
     Hxx, Hxy, MI = MI_est(L, x)
+
     return Hxx, Hxy, MI, L, qon, qoff
 
 
@@ -236,8 +246,9 @@ def reorder_x(x, ordervecs):
             print('No jumps up; reordering not possible')
             revecsup = None
             revecsdown = None
-        if njumpsdown < 1:
+        if njumpdown < 1:
             print('No jumps down; reordering not possible')
             revecsup = None
             revecsdown = None
+            
     return revecsup, revecsdown

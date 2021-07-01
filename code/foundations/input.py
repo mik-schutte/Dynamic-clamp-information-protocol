@@ -1,21 +1,20 @@
-'''
-    input.py
+''' input.py
     
-    Class containing the input parameters for generating an input current.
+    This file contains the input class that generates the hidden state and the input theory.
+
     The method is described in the following paper:
     Zeldenrust, F., de Knecht, S., Wadman, W. J., Denève, S., Gutkin, B., Knecht, S. De, Denève, S. (2017). 
     Estimating the Information Extracted by a Single Spiking Neuron from a Continuous Input Time Series. 
     Frontiers in Computational Neuroscience, 11(June), 49. doi:10.3389/FNCOM.2017.00049
     Please cite this reference when using this method.
-    
-    NB time (dt,T) in ms, freq in Hz, but qon en qoff in MHz
-    always first 50 ms silent, then 50 ms noise, then rest   #TODO This isn't the case 
 '''
 import numpy as np
 import matplotlib.pyplot as plt
 
 class Input():
-    '''Class containing the input parameters.
+    ''' Class that generates the input to the ANN (hidden state) and to the model neuron (input theory).
+
+    NOTE time (dt,T) in ms, freq in Hz, but qon en qoff in MHz
     '''
     def __init__(self): 
         # For all
@@ -98,55 +97,78 @@ class Input():
 
     @staticmethod
     def create_qonqoff(mutheta, N, alphan, regime, qseed=None):
-        '''Generates normally distributed [qon, qoff] with qon and qoff 
-           being a matrix filled  with the firing rate of each neuron based 
-           on the hidden state.
+        ''' Generates [qon, qoff] with qon and qoff being a matrix filled with the 
+            firing rate of each neuron based on the hidden state.
+
+            INPUT
+            mutheta (float): the summed difference between qon and qoff
+            N (int): number of neurons in the ANN
+            alphan (?): ? 
+            regime (int): coincedence of push-pull regime
+            qseed (int): seed to set the random number generator (rng)
+
+            OUTPUT
+            [qon, qoff]: array containing the firing rates of the neurons during both states
         '''
+        # Sample qon and qoff from a rng.
         np.random.seed(qseed)
-        
         qoff = np.random.randn(N, 1) 
         qon = np.random.randn(N, 1)
+
         if N > 1:
-            #Creates a q distribution with a standard deviation of 1 
+            # Creates a q distribution with a standard deviation of 1 
             qoff = qoff/np.std(qoff)
             qon = qon/np.std(qon)
         qoff = qoff - np.mean(qoff)
         qon = qon - np.mean(qon)
 
         if regime == 1:   
-            #Coincedence regime !! No E/I balance, little negative weights
+            # Coincedence regime !! No E/I balance, little negative weights
             qoff = (alphan*qoff+1)*mutheta/N
             qon = (alphan*qon+2)*mutheta/N
         else:
-            #Push-pull regime !! E/I balance, negative weights
+            # Push-pull regime !! E/I balance, negative weights
             qoff = (alphan*qoff+1)*mutheta/np.sqrt(N)
             qon = (alphan*qon+1+1/np.sqrt(N))*mutheta/np.sqrt(N)
         
-        #Set all negative firing rates to 0
+        # Set all negative firing rates to absolute value
         qoff[qoff<0] = abs(qoff[qoff<0])
         qon[qon<0] = abs(qon[qon<0])
+
         return [qon, qoff]
     
 
     @staticmethod
     def create_qonqoff_balanced(N,  meanq, stdq, qseed=None):
-        '''Generates normally distributed [qon, qoff] with qon and qoff 
-           being a matrix filled  with the firing rate of each neuron based 
-           on the hidden state.
-        '''
-        np.random.seed(qseed)
+        ''' Generates normally distributed [qon, qoff] with qon and qoff 
+            being a matrix filled with the firing rate of each neuron based 
+            on the hidden state.
 
+            INPUT
+            N (int): number of neurons in the ANN
+            meanq (float): mean of the normal distribution from which q is sampled
+            stdq (float): standard deviation of the normal distribution
+            qseed (int): seed to set the random number generator (rng)
+
+            OUTPUT
+            [qon, qoff]: array containing the firing rates of the neurons during both states
+        '''
+        # Sample qon and qoff from a rng.
+        np.random.seed(qseed)
         qoff = np.random.randn(N, 1)
         qon = np.random.randn(N, 1)
+
+        # Consider the normal distribution
         if N > 1: 
             qoff = qoff/np.std(qoff)
             qon = qon/np.std(qon)
-
         qoff = stdq*(qoff-np.mean(qoff))+meanq
         qon = stdq*(qon-np.mean(qon))+meanq
 
+        # Set all negative firing rates to absolute value
         qoff[qoff<0] = abs(qoff[qoff<0])
         qon[qon<0] = abs(qon[qon<0])
+        
         return [qon, qoff]
 
 
@@ -155,19 +177,31 @@ class Input():
         '''Generates uniformly distributed [qon, qoff] with qon and qoff 
            being a matrix filled with the firing rate of each neuron based 
            on the hidden state.
+
+            INPUT
+            N (int): number of neurons in the ANN
+            minq (float): minimal firing rate
+            maxq (float): maximal firing rate
+            qseed (int): seed to set the random number generator (rng)
+
+            OUTPUT
+            [qon, qoff]: array containing the firing rates of the neurons during both states
         '''
+        # Sample qon and qoff from a rng
         np.random.seed(qseed)
-        
         qoff = np.random.rand(N, 1)
-        qoff = minq + np.multiply((maxq-minq), qoff)
         qon = np.random.rand(N, 1)
+
+        # Consider the uniform distribution
+        qoff = minq + np.multiply((maxq-minq), qoff)
         qon = minq + np.multiply((maxq-minq), qon)
+
         return [qon, qoff]
 
 
     def markov_hiddenstate(self): 
-        '''Takes ron and roff from class object and generates
-           the hiddenstate if xfix is empty.
+        ''' Takes ron and roff from class object and generates
+            the hiddenstate if xfix is empty.
         '''
         np.random.seed(self.xseed)
         
@@ -203,9 +237,9 @@ class Input():
 
 
     def markov_input(self, dynamic=False):
-        '''Takes qon, qoff and hiddenstate and generates input.
-           Optionally when dynamic is a dictinary of g0_values it
-           generates a conductance over time based on the hidden state. 
+        ''' Takes qon, qoff and hiddenstate and generates input.
+            Optionally when dynamic is a dictinary of g0_values it
+            generates a conductance over time based on the hidden state. 
         '''
         xs = self.x
         nt = self.length 
@@ -258,4 +292,6 @@ class Input():
 
         stsum = stsum[0:nt]
         ip = stsum 
+
         return ip
+        

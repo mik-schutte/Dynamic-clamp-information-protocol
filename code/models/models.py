@@ -1,6 +1,17 @@
 ''' models.py
 
-    Python file containing different neuron models used in simulations.
+    Python file containing different neuron models used in simulations. Modelled in Brian2
+
+    The Wang Buszaki model is described in:
+    Xiao-Jing Wang & György Buzsáki, (1996). Gamma Oscillation 
+    by synaptic inhibition in a hippocampal interneuronal network 
+    model. doi: https://doi.org/10.1523/JNEUROSCI.16-20-06402.1996 
+    Original from: https://brian2.readthedocs.io/en/stable/examples/frompapers.Wang_Buszaki_1996.html  
+
+    Fitting of the parameters used in Barrel_PC and Barrel_IN classes are described in:
+    22.	Sterl, X. and Zeldenrust, F. (2020) Dopamine modulates ﬁring rates and information transfer 
+    in inhibitory and excitatory neurons of rat barrel cortex, but shows no clear inﬂuence on neuronal 
+    parameters. Bsc. University of Amsterdam. Available at: https://scripties.uba.uva.nl/search?id=715234.
 '''
 import brian2 as b2
 import matplotlib.pyplot as plt
@@ -9,23 +20,16 @@ import numpy as np
 def simulate_Wang_Buszaki(inj_input, simulation_time, clamp_type='current'):
     ''' Hodgkin-Huxley model of a hippocampal (CA1) interneuron.
 
-        INPUT:
-            inj_input ((Tuple of) TimedArray): Input current or conductances (g_exc, g_inh)
-            duration (float): Simulation time [milliseconds]
-            clamp_type (string): type of input, ['current' or 'dynamic'] default = current
+        INPUT
+        inj_input ((Tuple of) TimedArray): Input current or conductances (g_exc, g_inh)
+        duration (float): Simulation time [milliseconds]
+        clamp_type (string): type of input, ['current' or 'dynamic'] default = current
 
-        OUTPUT:
-            StateMonitor: Brian2 StateMonitor with recorded fields
-            ['v', 'input' or 'conductance']
-            SpikeMonitor: Brian2 SpikeMonitor
-
-        Xiao-Jing Wang & György Buzsáki, (1996). Gamma Oscillation 
-        by synaptic inhibition in a hippocampal interneuronal network 
-        model. doi: https://doi.org/10.1523/JNEUROSCI.16-20-06402.1996 
-
-        Original from: https://brian2.readthedocs.io/en/stable/examples/frompapers.Wang_Buszaki_1996.html   
+        OUTPUT
+        StateMonitor: Brian2 StateMonitor with recorded fields
+        ['v', 'input' or 'conductance']
+        SpikeMonitor: Brian2 SpikeMonitor
     '''
-
     # Determine the simulation
     if clamp_type == 'current':
         eqs_input = '''I_inj = inj_input(t) : amp'''
@@ -86,18 +90,13 @@ class Barrel_PC:
     ''' Hodgkin-Huxley model of a Pyramidal Cell in the rat barrel cortex.
 
         INPUT:
-            clamp_type (str): type of input, ['current' or 'dynamic']
-            dt (float): time step of the simulation in miliseconds.
+        clamp_type (str): type of input, ['current' or 'dynamic']
+        dt (float): time step of the simulation in miliseconds.
 
         OUTPUT:
-            StateMonitor, SpikeMonitor: Brian2 StateMonitor with recorded fields
-            ['v', 'input' or 'conductance'] and SpikeMonitor which records spikes
+        StateMonitor, SpikeMonitor: Brian2 StateMonitor with recorded fields
+        ['v', 'input' or 'conductance'] and SpikeMonitor which records spikes
 
-        The parameters used in this model have been fitted by Xenia Sterl under 
-        the supervision of Fleur Zeldenrust. Full description can be found in:
-        Xenia Sterl, Fleur Zeldenrust, (2020). Dopamine modulates firing rates and information
-        transfer in inhibitory and excitatory neurons of rat barrel cortex, but shows no clear
-        influence on neuronal parameters. (Unpublished bachelor's thesis)
     '''
     def __init__(self, clamp_type, dt=0.5):
         self.clamp_type = clamp_type

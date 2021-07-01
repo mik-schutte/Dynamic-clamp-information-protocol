@@ -1,14 +1,19 @@
-'''
-    make_dynamic_experiments.py
+''' make_dynamic_experiments.py
 
-    Make LUT of a dynamic input current based on a artificial network responding to a hidden state
+    This file contains the function that generates a hidden state and the corresponding theoretical
+    input (current or conductance).
+
     The method is described in the following paper:
     Zeldenrust, F., de Knecht, S., Wadman, W. J., Denève, S., Gutkin, B., Knecht, S. De, Denève, S. (2017). 
     Estimating the Information Extracted by a Single Spiking Neuron from a Continuous Input Time Series. 
     Frontiers in Computational Neuroscience, 11(June), 49. doi:10.3389/FNCOM.2017.00049
     Please cite this reference when using this method.
+
+    Dynamic clamp adaptation is described in:
+    Schutte, M. and Zeldenrust, F. (2021) Increased neural information transfer for a conductance input:
+    a dynamic clamp approach to study information flow. Msc. University of Amsterdam. Available at: https://scripties.uba.uva.nl
     
-    NB Make sure that you save the hidden state with the experiments, it is
+    NOTE Make sure that you save the hidden state & input theory with the experiments, it is
     essential for the information calculation!
 '''
 import os,sys,inspect
@@ -22,26 +27,23 @@ from foundations.dynamic_clamp import get_g0
 from foundations.input import Input
 
 def make_dynamic_experiments(qon_qoff_type, baseline, tau, factor_ron_roff, mean_firing_rate, sampling_rate, duration, seed=None):
-    ''' Make input current look up table (LUT) based on a artificial network responding
-        to a hidden state.
+    ''' Make hidden state and let an ANN generate a theoretical input corresponding to that hidden state.
 
-    INPUT:
-        qon_qoff_type (str): The method of qon/qoff generation. Options are normal,
-                             balanced and balanced_uniform.
-        baseline (pA): Baseline for scaling the input current in picoampere.
-        amplitude_scaling (pA): Scaling of the stimulus in picoampere
-        tau (ms): Switching speed of the hidden state in milliseconds.
-        mean_firing_rate (kHz): Mean firing rate of the artificial neurons in kilohertz.
-        sampling rate (kHZ): Sampling rate of the experimental setup (injected current) 
-                             in kilohertz.
-        duration (ms): Length of the duration in milliseconds.
-        dv (float): resolution of voltage steps  
-        seed (optional): Seed used in the random number generator.
+    INPUT
+    qon_qoff_type (str): The method of qon/qoff generation normal, balanced or balanced_uniform
+    baseline (int): Baseline for scaling the input current in picoampere
+    tau (ms): Switching speed of the hidden state in milliseconds
+    factor_on_off (float): ratio determining the occurance of the ON and OFF state 
+    mean_firing_rate (int): Mean firing rate of the artificial neurons in kilohertz
+    sampling rate (int): Sampling rate of the experimental setup (injected current) in kilohertz
+    duration (float): Length of the duration in milliseconds
+    seed (optional): seed used in the random number generator
 
-    OUTPUT: 
-        exc_LUT(dict): dictionary of the injected current per voltage.
-        inh_LUT(dict): dictionary of the injected current per voltage.
-        hidden_state: 1xN array with hidden state values 0=off 1=on.
+    OUTPUT
+    [input_theory, dynamic_theory, hidden_state] (array): array containing theoretical input and hidden state
+    input_theory (array): the theoretical current input
+    dynamic_theory (array): the theoretical conductance input
+    hidden_state: 1xN array with hidden state values 0=OFF 1=ON
     '''
     # Set RNG seed, if no seed is provided
     if seed == None:

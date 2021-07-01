@@ -6,11 +6,11 @@ current_dir = os.path.dirname(os.path.abspath(inspect.getfile(inspect.currentfra
 parent_dir = os.path.dirname(current_dir)
 sys.path.insert(0, parent_dir)
 
-from foundations.helpers import scale_input_theory
+from code.foundations.helpers import scale_input_theory
 from brian2 import clear_cache, uA, mV, ms
-from models.models import Barrel_PC, Barrel_IN
-from foundations.helpers import scale_to_freq
-from foundations.make_dynamic_experiments import make_dynamic_experiments
+from code.models.models import Barrel_PC, Barrel_IN
+from code.foundations.helpers import scale_to_freq
+from code.foundations.make_dynamic_experiments import make_dynamic_experiments
 import numpy as np
 import pandas as pd
 
@@ -36,9 +36,10 @@ target_PC = 1.4233
 target_IN = 6.6397
 on_off_ratio = 1.5
 scale_list = np.append([1], np.arange(2.5, 302.5, 2.5))
-scales = {'CC_PC':20, 'DC_PC':30, 'CC_IN':22.5, 'DC_IN':7.5}
+scales = {'CC_PC':19, 'DC_PC':30, 'CC_IN':17, 'DC_IN':6}
+N_runs = 1
 
-
+print('Starting Simulation...')
 # Initiate Pyramidal cell models
 PC_i = 35
 current_PC = Barrel_PC('current', dt=dt)
@@ -53,7 +54,7 @@ vars_to_track = ['input_theory', 'dynamic_theory', 'hidden_state',
 results_PC = pd.DataFrame(columns=vars_to_track)
 
 # Pyramidal Cell simulation
-for _ in range(15):
+for _ in range(N_runs):
     # Make input theory and hidden state for Pyramidal Cell
     [input_theory, dynamic_theory, hidden_state] = make_dynamic_experiments(qon_qoff_type, baseline, tau_PC, factor_ron_roff, mean_firing_rate_PC, sampling_rate, duration_PC)
 
@@ -91,7 +92,7 @@ dynamic_IN.store()
 results_IN = pd.DataFrame(columns=vars_to_track)
 
 # Interneuron simulation
-for _ in range(15):
+for _ in range(N_runs):
     # Make iput theory and hidden state for interneurons
     [input_theory, dynamic_theory, hidden_state] = make_dynamic_experiments(qon_qoff_type, baseline, tau_IN, factor_ron_roff, mean_firing_rate_IN, sampling_rate, duration_IN)
 
@@ -113,11 +114,13 @@ for _ in range(15):
     results_IN = results_IN.append(data, ignore_index=True)
 
 # Save data
-results_PC.to_pickle('results/results_PC2.pkl')
-results_IN.to_pickle('results/results_IN2.pkl')
+# results_PC.to_pickle('results/results_PC.pkl')
+# results_IN.to_pickle('results/results_IN.pkl')
 
 # Clean cache
 try:
     clear_cache('cython')
 except:
     pass
+
+print('Simulation Completed!')
